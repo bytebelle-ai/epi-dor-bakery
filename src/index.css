@@ -1,0 +1,674 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+:root {
+  --green: #3c6434;
+  --ivory: #f4f4e4;
+  --olive: #4c6c3c;
+  --gold: #dcb45c;
+  --ink: #283126;
+  --cream: #faf9f0;
+  --line: rgba(40, 49, 38, 0.16);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--ivory); color: var(--ink); font-family: "DM Sans", sans-serif; }
+button, input, textarea, select { font: inherit; color: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+img { display: block; width: 100%; }
+h1, h2, h3, p { margin-top: 0; }
+h1, h2, h3 { font-family: "Cormorant Garamond", serif; font-weight: 500; }
+h1 { font-size: clamp(3.4rem, 7vw, 7.4rem); line-height: .86; letter-spacing: -.045em; }
+h2 { font-size: clamp(2.6rem, 4.6vw, 5rem); line-height: .94; letter-spacing: -.035em; }
+em { font-weight: 500; }
+svg { width: 1.3rem; height: 1.3rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.section { max-width: 90rem; margin-inline: auto; padding: 7.5rem 4.5rem; }
+.eyebrow { margin-bottom: 1.25rem; color: var(--green); font-size: .69rem; font-weight: 600; letter-spacing: .18em; }
+.eyebrow.light { color: var(--ivory); }
+.page { padding-top: 6.5rem; min-height: 75vh; }
+
+.header { position: fixed; z-index: 50; top: 0; width: 100%; height: 6.5rem; background: rgba(244,244,228,.72); border-bottom: 1px solid rgba(244,244,228,.22); backdrop-filter: blur(16px) saturate(1.15); -webkit-backdrop-filter: blur(16px) saturate(1.15); transition: .3s ease; }
+.header.compact { height: 5rem; background: rgba(244,244,228,.9); border-color: var(--line); box-shadow: 0 .4rem 1.8rem rgba(40,49,38,.05); }
+.header.home-header { background: linear-gradient(180deg,rgba(40,49,38,.42),rgba(40,49,38,.02)); border-color: rgba(244,244,228,.16); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); }
+.header.home-header .logo, .header.home-header .logo i, .header.home-header .nav-links > button:not(.btn), .header.home-header .icon-btn { color: var(--ivory); }
+.header.home-header .btn { border-color: var(--ivory); background: rgba(244,244,228,.1); color: var(--ivory); }
+.nav-shell { max-width: 94rem; height: 100%; margin: auto; padding: 0 3rem; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.logo { width: max-content; padding: 0; background: none; border: 0; color: var(--green); font-family: "Cormorant Garamond", serif; font-size: 2rem; line-height: .8; text-align: left; }
+.logo i { color: var(--green); }
+.logo small { display: block; margin-top: .55rem; font: 600 .46rem "DM Sans"; letter-spacing: .22em; }
+.nav-links { display: flex; align-items: center; gap: 2.3rem; }
+.nav-links > button:not(.btn) { position: relative; padding: .6rem 0; background: none; border: 0; font-size: .77rem; }
+.nav-links > button:not(.btn)::after { content: ""; position: absolute; left: 0; right: 100%; bottom: 0; height: 1px; background: var(--gold); transition: .25s; }
+.nav-links > button:hover::after, .nav-links > button.active::after { right: 0; }
+.nav-links .btn { display: none; }
+.mobile-account-link, .mobile-switch-link { display: none; }
+.nav-actions { justify-self: end; display: flex; align-items: center; gap: .55rem; }
+.icon-btn { position: relative; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: 0; background: transparent; border: 0; }
+.icon-btn.bag b { position: absolute; top: -.05rem; right: -.1rem; display: grid; place-items: center; min-width: 1.05rem; height: 1.05rem; padding: 0 .2rem; border-radius: 50%; background: var(--gold); color: var(--ink); font-size: .6rem; }
+.desktop-order { margin-left: .7rem; }
+.mobile-toggle { display: none; }
+.btn { min-height: 3.15rem; padding: .9rem 1.55rem; display: inline-flex; justify-content: center; align-items: center; gap: .65rem; border: 1px solid var(--green); background: var(--green); color: var(--ivory); font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; transition: .25s; }
+.btn:hover { background: var(--olive); transform: translateY(-2px); }
+.btn-light { border-color: var(--ivory); background: var(--ivory); color: var(--green); }
+.btn-light:hover { background: var(--cream); }
+.btn-text { padding-inline: 0; min-height: auto; background: none; border-width: 0 0 1px; color: var(--green); }
+.btn-text:hover { background: none; color: var(--olive); }
+
+.hero { position: relative; height: min(59.5rem, 100vh); min-height: 43rem; margin-top: 0; overflow: hidden; color: var(--ivory); }
+.hero > img { height: 100%; object-fit: cover; object-position: center 44%; filter: saturate(.77); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(25,37,22,.78), rgba(25,37,22,.2) 63%, rgba(25,37,22,.05)); }
+.hero-copy { position: absolute; z-index: 2; left: max(4.5rem, calc((100% - 81rem)/2)); bottom: 8rem; max-width: 48rem; }
+.hero-copy h1 { margin-bottom: 2rem; color: var(--ivory); }
+.hero-copy > p:not(.eyebrow) { max-width: 35rem; color: rgba(244,244,228,.85); line-height: 1.75; }
+.hero-actions { display: flex; gap: 1rem; margin-top: 2.5rem; }
+.ghost-btn { padding: .8rem 1.3rem; display: flex; align-items: center; gap: 1rem; border: 0; border-bottom: 1px solid rgba(244,244,228,.45); background: transparent; color: var(--ivory); font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.hero-note { position: absolute; right: 4.5rem; bottom: 3rem; display: flex; align-items: center; gap: 1rem; padding: 1.2rem 0; border-block: 1px solid rgba(244,244,228,.4); }
+.hero-note span { font: 500 2.2rem "Cormorant Garamond"; }
+.hero-note p { margin: 0; font-size: .65rem; line-height: 1.5; letter-spacing: .08em; text-transform: uppercase; }
+
+.intro { max-width: 60rem; text-align: center; }
+.intro h2 { margin-bottom: 1.8rem; }
+.intro > p:last-child { max-width: 40rem; margin: auto; color: rgba(40,49,38,.72); line-height: 1.8; }
+.featured { padding-top: 1rem; }
+.section-heading { margin-bottom: 3.5rem; display: flex; justify-content: space-between; align-items: end; }
+.section-heading h2 { margin: 0; }
+.text-link { display: inline-flex; align-items: center; gap: .8rem; padding: .5rem 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--green); font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.text-link svg { width: 1rem; transition: transform .2s; }
+.text-link:hover svg { transform: translateX(.25rem); }
+.product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.6rem; }
+.product-card { min-width: 0; }
+.product-image { position: relative; width: 100%; height: 23rem; padding: 0; overflow: hidden; border: 0; background: var(--cream); }
+.product-image img { height: 100%; object-fit: cover; filter: saturate(.75); transition: transform .7s ease; }
+.product-card:hover .product-image img { transform: scale(1.035); }
+.product-image > span { position: absolute; top: 1rem; left: 1rem; padding: .5rem .65rem; background: rgba(250,249,240,.9); color: var(--green); font-size: .56rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.product-info { padding: 1.4rem .15rem 0; }
+.product-info .eyebrow { margin-bottom: .65rem; font-size: .58rem; }
+.product-info h3 { min-height: 2.2rem; margin-bottom: .55rem; font-size: 1.55rem; line-height: 1; }
+.product-info > p:not(.eyebrow) { min-height: 2.8rem; margin-bottom: 1.25rem; color: rgba(40,49,38,.65); font-size: .76rem; line-height: 1.55; }
+.variant-row { display: flex; gap: .4rem; margin-bottom: 1rem; }
+.variant-row button, .filter-row button, .diet-row button { padding: .5rem .75rem; border: 1px solid var(--line); background: transparent; font-size: .66rem; }
+.variant-row button.selected, .filter-row button.selected, .diet-row button.selected { border-color: var(--green); background: var(--green); color: var(--ivory); }
+.card-bottom { min-height: 3.1rem; display: flex; align-items: center; gap: .9rem; border-top: 1px solid var(--line); }
+.card-bottom strong { font-size: .9rem; }
+.card-bottom .text-link { margin-left: auto; border: 0; font-size: .56rem; }
+.add-btn { display: grid; place-items: center; width: 2.45rem; height: 2.45rem; border: 1px solid var(--green); background: transparent; color: var(--green); transition: .2s; }
+.add-btn:hover { background: var(--green); color: var(--ivory); }
+
+.category-section { background: var(--green); color: var(--ivory); }
+.category-inner { padding-block: 6.5rem; }
+.section-heading.inverse > p { max-width: 27rem; margin: 0; color: rgba(244,244,228,.7); font-size: .85rem; line-height: 1.7; }
+.category-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(244,244,228,.24); border-left: 1px solid rgba(244,244,228,.24); }
+.category-grid button { min-height: 10rem; padding: 1.5rem; display: grid; grid-template-columns: 1fr auto; align-content: space-between; text-align: left; border: 0; border-right: 1px solid rgba(244,244,228,.24); border-bottom: 1px solid rgba(244,244,228,.24); background: transparent; color: inherit; transition: .25s; }
+.category-grid button:hover { background: rgba(244,244,228,.08); }
+.category-grid button span { grid-column: 1 / -1; color: var(--gold); font-size: .6rem; }
+.category-grid button strong { align-self: end; font: 500 1.55rem "Cormorant Garamond"; }
+.category-grid button svg { align-self: end; }
+.story { display: grid; grid-template-columns: 1.1fr .9fr; align-items: center; gap: 8rem; }
+.story-image { position: relative; }
+.story-image img { height: 40rem; object-fit: cover; filter: saturate(.72); }
+.story-image span { position: absolute; right: -2.7rem; bottom: 2.7rem; padding: 1.1rem 1.3rem; background: var(--gold); color: var(--ink); font-size: .57rem; letter-spacing: .15em; writing-mode: vertical-rl; }
+.story-copy > p:not(.eyebrow) { color: rgba(40,49,38,.7); line-height: 1.8; }
+
+.page-title { padding: 7rem 2rem 5rem; text-align: center; background: var(--cream); border-bottom: 1px solid var(--line); }
+.page-title h1 { margin-bottom: 1.5rem; font-size: clamp(4rem, 7vw, 6.5rem); }
+.page-title > p:last-child { color: rgba(40,49,38,.65); }
+.menu-tools { padding-top: 3.5rem; }
+.search-box { position: relative; float: left; width: min(28rem, 60%); }
+.search-box svg { position: absolute; top: 50%; left: 1rem; transform: translateY(-50%); }
+.search-box input, .menu-tools > select { height: 3.5rem; border: 1px solid var(--line); background: var(--cream); outline: 0; }
+.search-box input { width: 100%; padding: 0 1rem 0 3rem; }
+.menu-tools > select { float: right; padding: 0 2.5rem 0 1rem; }
+.filter-row { clear: both; padding: 2rem 0 2.5rem; display: flex; gap: .55rem; overflow-x: auto; scrollbar-width: none; }
+.filter-row button { flex: none; padding: .7rem 1rem; text-transform: uppercase; letter-spacing: .07em; }
+.results-line { margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem; color: rgba(40,49,38,.55); font-size: .68rem; text-transform: uppercase; letter-spacing: .12em; }
+.results-line i { flex: 1; height: 1px; background: var(--line); }
+.menu-tools .product-grid { row-gap: 5rem; }
+.empty { padding: 6rem 1rem; text-align: center; }
+.empty h2 { margin-bottom: .5rem; font-size: 2.5rem; }
+
+.detail { padding-top: 10rem; }
+.back-link { margin-bottom: 2rem; padding: 0; border: 0; background: transparent; font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; }
+.detail-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 7rem; align-items: center; }
+.detail-image { position: relative; }
+.detail-image img { height: 43rem; object-fit: cover; filter: saturate(.75); }
+.detail-image span { position: absolute; left: 1.5rem; bottom: 1.5rem; padding: .8rem; background: var(--ivory); font-size: .58rem; letter-spacing: .1em; }
+.detail-copy h1 { margin-bottom: 1.5rem; font-size: clamp(3.2rem, 5vw, 5.6rem); }
+.detail-desc { max-width: 31rem; color: rgba(40,49,38,.7); line-height: 1.8; }
+.detail-price { display: block; margin: 2rem 0; font-size: 1.2rem; }
+fieldset { margin: 0 0 2rem; padding: 0; border: 0; }
+legend, .field { font-size: .71rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.size-options { margin-top: .8rem; display: grid; grid-template-columns: repeat(2, 1fr); gap: .7rem; }
+.size-options button { padding: 1rem; display: flex; justify-content: space-between; border: 1px solid var(--line); background: var(--cream); }
+.size-options button.selected { border-color: var(--green); box-shadow: inset 0 0 0 1px var(--green); }
+.purchase-row { display: flex; gap: .8rem; margin-top: 1.4rem; }
+.purchase-row .btn { flex: 1; }
+.quantity { height: 3.15rem; display: flex; align-items: center; border: 1px solid var(--line); background: var(--cream); }
+.quantity button { width: 2.7rem; display: grid; place-items: center; border: 0; background: transparent; }
+.quantity span { min-width: 1.5rem; text-align: center; font-size: .8rem; }
+.request-note { margin-top: 1.2rem; color: rgba(40,49,38,.65); font-size: .7rem; line-height: 1.6; }
+
+.custom-hero { position: relative; min-height: 35rem; display: grid; align-items: center; overflow: hidden; color: var(--ivory); }
+.custom-hero img { position: absolute; inset: 0; height: 100%; object-fit: cover; filter: brightness(.48) saturate(.7); }
+.custom-hero > div { z-index: 1; max-width: 90rem; width: 100%; margin: auto; padding: 5rem 4.5rem; }
+.custom-hero h1 { max-width: 50rem; margin-bottom: 1.5rem; font-size: clamp(3.8rem, 6vw, 6.5rem); }
+.custom-hero > div > p:last-child { max-width: 34rem; line-height: 1.7; }
+.custom-builder { max-width: 75rem; }
+.custom-intro { max-width: 48rem; margin: 0 auto 4rem; text-align: center; }
+.custom-intro > p:last-child { max-width: 42rem; margin-inline: auto; color: rgba(40,49,38,.7); line-height: 1.8; }
+.custom-builder .cake-form { display: grid; gap: 2rem; }
+.cake-step { margin: 0; padding: 2.6rem; border: 1px solid var(--line); border-radius: 1.4rem; background: rgba(250,249,240,.74); }
+.cake-step legend { width: auto; padding: 0 1rem; color: var(--ink); font: 500 2rem "Cormorant Garamond"; letter-spacing: -.015em; text-transform: none; }
+.cake-step legend span { color: var(--green); }
+.cake-choice-grid { margin-top: .6rem; display: grid; grid-template-columns: repeat(2,1fr); gap: .9rem; }
+.cake-choice-grid button { position: relative; padding: .7rem; display: grid; grid-template-columns: 5.5rem 1fr 1rem; gap: 1rem; align-items: center; border: 1px solid var(--line); border-radius: .8rem; background: var(--ivory); text-align: left; }
+.cake-choice-grid button.selected { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+.cake-choice-grid img { height: 4.8rem; border-radius: .45rem; object-fit: cover; filter: saturate(.75); }
+.cake-choice-grid button > span { display: grid; gap: .35rem; }
+.cake-choice-grid strong { font: 500 1.15rem "Cormorant Garamond"; }
+.cake-choice-grid small { color: rgba(40,49,38,.58); font-size: .64rem; }
+.cake-choice-grid i { width: .9rem; height: .9rem; border: 1px solid var(--line); border-radius: 50%; }
+.cake-choice-grid button.selected i { border: .25rem solid var(--green); }
+.size-choice-row { display: grid; grid-template-columns: repeat(2,1fr); gap: .8rem; }
+.size-choice-row button { padding: 1rem 1.2rem; display: flex; justify-content: space-between; border: 1px solid var(--line); border-radius: .75rem; background: var(--ivory); }
+.size-choice-row button.selected { border-color: var(--green); background: var(--green); color: var(--ivory); }
+.size-choice-row button span { font-size: .72rem; }
+.cake-step .field { margin-top: 1.4rem; color: var(--ink); font-size: .72rem; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.cake-step .field:first-of-type { margin-top: .6rem; }
+.cake-step .field input, .cake-step .field textarea { border-radius: .75rem; background: rgba(244,244,228,.65); }
+.cake-step .field input:focus, .cake-step .field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.cake-step .diet-row button { border-radius: 2rem; padding: .72rem 1.25rem; font-size: .72rem; }
+.contact-field-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 1.2rem; }
+.cake-form-submit { position: sticky; z-index: 2; bottom: 1rem; padding: 1.2rem 1.4rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--line); background: rgba(250,249,240,.94); box-shadow: 0 .7rem 2rem rgba(40,49,38,.1); backdrop-filter: blur(10px); }
+.cake-form-submit > div { display: grid; grid-template-columns: 1fr auto; gap: .25rem 2rem; }
+.cake-form-submit small { grid-column: 1/-1; color: var(--green); font-size: .52rem; letter-spacing: .12em; }
+.cake-form-submit strong { font: 500 1.15rem "Cormorant Garamond"; }
+.cake-form-submit span { font-size: .8rem; }
+.contact-form { padding: 2.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; background: var(--cream); border: 1px solid var(--line); }
+.field { display: flex; flex-direction: column; gap: .65rem; }
+.field input, .field select, .field textarea { width: 100%; min-height: 3.2rem; padding: .85rem 1rem; border: 1px solid var(--line); border-radius: 0; background: var(--ivory); outline: none; text-transform: none; letter-spacing: 0; }
+.field textarea { min-height: 6.5rem; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--green); }
+.full { grid-column: 1/-1; }
+.diet-row { display: flex; flex-wrap: wrap; gap: .5rem; }
+.diet-row button { padding: .7rem 1rem; }
+.field small { color: rgba(40,49,38,.55); font-weight: 400; text-transform: none; letter-spacing: 0; }
+.form-submit { grid-column: 1/-1; display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; }
+
+.editorial-hero { min-height: 34rem; display: grid; grid-template-columns: 1.3fr .7fr; align-items: end; gap: 6rem; }
+.editorial-hero h1 { margin: 0; }
+.editorial-hero > p { max-width: 26rem; padding-bottom: 1rem; font: 500 1.65rem/1.35 "Cormorant Garamond"; }
+.about-image { height: 42rem; padding: 0 2rem; }
+.about-image img { height: 100%; object-fit: cover; filter: saturate(.72); }
+.philosophy { display: grid; grid-template-columns: 1fr 1fr; gap: 9rem; }
+.philosophy p { color: rgba(40,49,38,.7); line-height: 1.8; }
+.philosophy strong { display: inline-block; margin-top: 2rem; padding-bottom: .5rem; color: var(--green); border-bottom: 2px solid var(--gold); text-transform: uppercase; letter-spacing: .12em; }
+.contact { padding-top: 12rem; display: grid; grid-template-columns: 1fr 1fr; gap: 9rem; }
+.contact-copy h1 { font-size: clamp(3.6rem, 5.6vw, 6rem); }
+.contact-copy > p:not(.eyebrow) { max-width: 34rem; color: rgba(40,49,38,.7); line-height: 1.8; }
+.contact-list { margin-top: 3rem; border-top: 1px solid var(--line); }
+.contact-list > * { padding: 1.2rem 0; display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+.contact-list span { color: var(--green); font-size: .6rem; letter-spacing: .14em; }
+.contact-form { grid-template-columns: 1fr; align-self: start; }
+.contact-form h2 { font-size: 2.3rem; }
+.contact-form .full { grid-column: auto; }
+.whatsapp { color: var(--green); font-size: .7rem; text-align: center; text-transform: uppercase; letter-spacing: .08em; }
+
+.cart-layer { position: fixed; z-index: 100; inset: 0; }
+.cart-scrim { position: absolute; inset: 0; width: 100%; border: 0; background: rgba(27,35,25,.55); backdrop-filter: blur(2px); }
+.cart-panel { position: absolute; top: 0; right: 0; width: min(34rem, 100%); height: 100%; display: flex; flex-direction: column; background: var(--ivory); animation: slide .3s ease; }
+@keyframes slide { from { transform: translateX(100%); } }
+.cart-head { padding: 2rem; display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.cart-head .eyebrow { margin-bottom: .5rem; }
+.cart-head h2 { margin: 0; font-size: 2.3rem; }
+.cart-head h2 span { font: 400 .8rem "DM Sans"; }
+.cart-items { flex: 1; overflow-y: auto; padding: 0 2rem; }
+.cart-item { padding: 1.5rem 0; display: grid; grid-template-columns: 6rem 1fr auto; gap: 1.2rem; border-bottom: 1px solid var(--line); }
+.cart-item > img { height: 7.5rem; object-fit: cover; }
+.cart-item h3 { margin: 0 0 .4rem; font-size: 1.25rem; }
+.cart-item p, .cart-item small { display: block; margin: 0 0 .7rem; color: rgba(40,49,38,.6); font-size: .67rem; }
+.quantity.small { width: max-content; height: 2rem; }
+.quantity.small button { width: 2rem; }
+.quantity.small svg { width: .85rem; }
+.remove { margin-top: .65rem; padding: 0; border: 0; border-bottom: 1px solid var(--line); background: none; font-size: .6rem; text-transform: uppercase; }
+.cart-item > strong { font-size: .75rem; }
+.cart-summary { padding: 1.7rem 2rem 2rem; border-top: 1px solid var(--line); background: var(--cream); }
+.cart-summary > div { display: flex; justify-content: space-between; }
+.cart-summary p { margin: 1rem 0; color: rgba(40,49,38,.6); font-size: .7rem; }
+.cart-summary .btn { width: 100%; }
+
+.checkout { padding-top: 10rem; display: grid; grid-template-columns: 1fr .72fr; align-items: start; gap: 7rem; }
+.checkout h1 { margin-bottom: 3rem; font-size: 4.5rem; }
+.checkout-form form { display: grid; gap: 1.2rem; }
+.checkout-form h3 { margin: 1.4rem 0 0; padding-bottom: .7rem; border-bottom: 1px solid var(--line); font: 600 .75rem "DM Sans"; letter-spacing: .1em; text-transform: uppercase; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.payment-note { padding: 1.2rem; background: var(--cream); border: 1px solid var(--line); }
+.payment-note p { margin: .5rem 0 0; color: rgba(40,49,38,.65); font-size: .7rem; line-height: 1.5; }
+.order-summary { position: sticky; top: 7rem; padding: 2rem; background: var(--cream); border: 1px solid var(--line); }
+.summary-item { padding: 1rem 0; display: grid; grid-template-columns: 3.7rem 1fr auto; gap: .8rem; align-items: center; border-bottom: 1px solid var(--line); font-size: .75rem; }
+.summary-item img { height: 3.7rem; object-fit: cover; }
+.summary-item small { display: block; margin-top: .3rem; color: rgba(40,49,38,.55); }
+.summary-total { padding-top: 1.5rem; display: flex; justify-content: space-between; }
+.confirmation { padding-top: 12rem; text-align: center; }
+.confirm-mark { width: 4rem; height: 4rem; margin: auto auto 2rem; display: grid; place-items: center; border: 1px solid var(--green); border-radius: 50%; color: var(--green); font-size: 1.5rem; }
+.confirmation h1 { margin-bottom: 1.5rem; font-size: 5rem; }
+.confirmation > p:not(.eyebrow) { max-width: 36rem; margin: auto; color: rgba(40,49,38,.65); line-height: 1.7; }
+.status-line { max-width: 52rem; margin: 4rem auto; display: grid; grid-template-columns: repeat(5, 1fr); }
+.status-line div { position: relative; display: grid; justify-items: center; gap: .7rem; font-size: .65rem; }
+.status-line div::before { content: ""; position: absolute; top: .9rem; left: -50%; width: 100%; height: 1px; background: var(--line); }
+.status-line div:first-child::before { display: none; }
+.status-line i { z-index: 1; width: 1.8rem; height: 1.8rem; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; background: var(--ivory); font-style: normal; }
+.status-line .current i { border-color: var(--green); background: var(--green); color: var(--ivory); }
+
+footer { background: var(--ink); color: var(--ivory); }
+.footer-main { max-width: 90rem; margin: auto; padding: 5rem 4.5rem; display: grid; grid-template-columns: 1.2fr 1.2fr .7fr .7fr; gap: 5rem; }
+footer .logo, footer .logo i { color: var(--ivory); }
+.footer-main > p { color: rgba(244,244,228,.6); font: 500 1.4rem/1.5 "Cormorant Garamond"; }
+.footer-main > div { display: grid; align-content: start; gap: .9rem; }
+.footer-main a, .footer-main button, .footer-main span { width: max-content; padding: 0; border: 0; background: none; color: rgba(244,244,228,.75); font-size: .7rem; text-decoration: none; }
+.footer-bottom { max-width: 90rem; margin: auto; padding: 1.2rem 4.5rem; display: flex; justify-content: space-between; border-top: 1px solid rgba(244,244,228,.15); color: rgba(244,244,228,.4); font-size: .6rem; text-transform: uppercase; letter-spacing: .1em; }
+
+/* Authentication and account */
+.welcome-entry { min-height: 100vh; display: grid; grid-template-columns: 1.05fr .95fr; background: var(--ivory); }
+.welcome-visual { position: relative; min-height: 100vh; overflow: hidden; color: var(--ivory); }
+.welcome-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(40,49,38,.72), rgba(40,49,38,.08) 65%); }
+.welcome-visual > img { height: 100%; object-fit: cover; filter: saturate(.7); }
+.welcome-wordmark { position: absolute; z-index: 1; top: 3.2rem; left: 3.5rem; display: grid; }
+.welcome-wordmark strong { font: 500 2.4rem "Cormorant Garamond"; }
+.welcome-wordmark span { margin-top: .45rem; font-size: .5rem; letter-spacing: .2em; }
+.welcome-visual > p { position: absolute; z-index: 1; left: 3.5rem; bottom: 3.5rem; margin: 0; font: 500 clamp(2.7rem,4vw,4.8rem)/.96 "Cormorant Garamond"; letter-spacing: -.035em; }
+.welcome-choices { padding: 4rem clamp(2rem,6vw,6rem); display: grid; place-items: center; }
+.welcome-inner { width: 100%; max-width: 38rem; }
+.welcome-inner > h1 { max-width: 35rem; margin-bottom: 1.5rem; font-size: clamp(3.7rem,6vw,6.3rem); }
+.welcome-lede { max-width: 31rem; margin-bottom: 3rem; color: rgba(40,49,38,.66); line-height: 1.75; }
+.entry-options { border-top: 1px solid var(--line); }
+.entry-options article { padding: 1.6rem 0; display: grid; grid-template-columns: 2rem 1fr auto; gap: 1rem; align-items: center; border-bottom: 1px solid var(--line); }
+.entry-options article > span { color: var(--gold); font-size: .58rem; }
+.entry-options h2 { margin-bottom: .25rem; font-size: 1.65rem; }
+.entry-options p { margin: 0; color: rgba(40,49,38,.6); font-size: .7rem; }
+.entry-admin-btn { padding: .8rem 0; display: flex; align-items: center; gap: .8rem; border: 0; border-bottom: 1px solid var(--green); background: transparent; color: var(--green); font-size: .64rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.welcome-inner > small { display: block; margin-top: 2.5rem; color: rgba(40,49,38,.48); font-size: .55rem; letter-spacing: .12em; text-transform: uppercase; }
+.role-selection { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; background: var(--ivory); }
+.role-header { height: 7rem; padding: 0 4rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+.role-header .welcome-wordmark { position: static; color: var(--green); }
+.role-header .welcome-wordmark strong { font-size: 2rem; }
+.role-header > p { margin: 0; color: var(--green); font-size: .57rem; letter-spacing: .13em; text-transform: uppercase; }
+.role-content { width: 100%; max-width: 90rem; margin: auto; padding: 4rem; display: grid; grid-template-columns: .78fr 1.22fr; gap: 7rem; align-items: center; }
+.role-intro h1 { margin-bottom: 1.5rem; font-size: clamp(4rem,6.6vw,7rem); }
+.role-intro > p:last-child { color: rgba(40,49,38,.6); }
+.role-cards { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); }
+.role-cards article { min-height: 29rem; padding: 2rem; display: flex; flex-direction: column; background: var(--cream); }
+.role-cards article + article { border-left: 1px solid var(--line); }
+.role-cards article > span { color: var(--green); font-size: .57rem; font-weight: 600; letter-spacing: .13em; }
+.role-ornament { width: 4rem; height: 4rem; margin: 3rem 0 auto; display: grid; place-items: center; border: 1px solid var(--gold); border-radius: 50%; color: var(--green); font: 500 2rem "Cormorant Garamond"; }
+.role-cards h2 { margin: 2rem 0 .7rem; font-size: 2.3rem; line-height: .95; }
+.role-cards p { min-height: 2rem; color: rgba(40,49,38,.6); font-size: .72rem; }
+.role-cards .btn, .role-outline-btn { width: 100%; margin-top: 1.5rem; }
+.role-outline-btn { min-height: 3.15rem; padding: .9rem 1rem; display: flex; justify-content: center; align-items: center; gap: .7rem; border: 1px solid var(--green); background: transparent; color: var(--green); font-size: .65rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.role-outline-btn svg, .role-cards .btn svg { width: 1rem; }
+.role-footer { max-width: none; padding: 1.2rem 4rem; display: flex; justify-content: space-between; border-top: 1px solid var(--line); background: transparent; color: rgba(40,49,38,.5); font-size: .55rem; letter-spacing: .1em; text-transform: uppercase; }
+.auth-gate-layer { position: fixed; z-index: 150; inset: 0; display: grid; place-items: center; padding: 1rem; }
+.auth-gate-scrim { position: absolute; inset: 0; width: 100%; border: 0; background: rgba(40,49,38,.6); backdrop-filter: blur(4px); }
+.auth-gate { position: relative; width: min(31rem,100%); padding: 3.5rem; border-top: 3px solid var(--gold); background: var(--cream); text-align: center; animation: gate-in .25s ease; }
+@keyframes gate-in { from { opacity: 0; transform: translateY(1rem); } }
+.gate-close { position: absolute; top: 1rem; right: 1rem; width: 2rem; height: 2rem; border: 0; background: transparent; color: var(--green); font: 300 1.5rem "DM Sans"; }
+.gate-mark { width: 3.2rem; height: 3.2rem; margin: 0 auto 1.5rem; display: grid; place-items: center; border: 1px solid var(--green); border-radius: 50%; color: var(--green); font: 500 1.7rem "Cormorant Garamond"; }
+.auth-gate h2 { margin-bottom: 1rem; font-size: 3rem; }
+.auth-gate > p:not(.eyebrow) { color: rgba(40,49,38,.65); font-size: .78rem; line-height: 1.65; }
+.gate-actions { margin-top: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.gate-signup { border: 1px solid var(--green); background: transparent; color: var(--green); font-size: .68rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.gate-browse { margin-top: 1.5rem; padding: .4rem 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--green); font-size: .68rem; }
+.auth-gate > small { display: block; margin-top: 1.4rem; color: rgba(40,49,38,.45); font-size: .6rem; }
+.buy-now { width: 100%; margin-top: .7rem; min-height: 3.15rem; border: 1px solid var(--green); background: transparent; color: var(--green); font-size: .68rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; transition: .2s; }
+.buy-now:hover { background: rgba(60,100,52,.06); }
+.account-menu-wrap { position: relative; }
+.account-popover { position: absolute; top: 3rem; right: -.5rem; width: 14rem; padding: 1.25rem; display: grid; gap: .15rem; border: 1px solid var(--line); background: var(--cream); box-shadow: 0 1rem 3rem rgba(40,49,38,.12); }
+.account-popover .eyebrow { margin: 0 0 .65rem; padding-bottom: .7rem; border-bottom: 1px solid var(--line); }
+.account-popover button { padding: .6rem 0; border: 0; background: transparent; font-size: .72rem; text-align: left; }
+.account-popover button:hover { color: var(--green); }
+.account-popover .popover-logout { margin-top: .4rem; padding-top: .8rem; border-top: 1px solid var(--line); color: #7a3f32; }
+.auth-page { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; padding-top: 6.5rem; background: var(--cream); }
+.auth-editorial { position: relative; min-height: calc(100vh - 6.5rem); overflow: hidden; color: var(--ivory); }
+.auth-editorial > img { position: absolute; inset: 0; height: 100%; object-fit: cover; filter: brightness(.48) saturate(.67); }
+.auth-editorial > div { position: absolute; z-index: 1; left: 4rem; right: 4rem; bottom: 4rem; }
+.auth-editorial blockquote { margin: 0 0 2rem; font: 500 clamp(2.7rem,4vw,4.6rem)/.98 "Cormorant Garamond"; letter-spacing: -.03em; }
+.auth-editorial span { font-size: .65rem; letter-spacing: .14em; text-transform: uppercase; }
+.auth-content { padding: 5rem max(2rem,8vw); display: grid; align-items: center; }
+.auth-card { width: 100%; max-width: 31rem; margin: auto; }
+.auth-card h1 { margin-bottom: 1rem; font-size: clamp(3.2rem,5vw,5.2rem); }
+.auth-lede { margin-bottom: 2rem; color: rgba(40,49,38,.65); line-height: 1.7; }
+.prototype-note { margin-bottom: 1.4rem; padding: .75rem .9rem; border-left: 2px solid var(--gold); background: rgba(220,180,92,.1); color: rgba(40,49,38,.7); font-size: .66rem; line-height: 1.5; }
+.auth-form { display: grid; gap: 1.1rem; }
+.signup-form { grid-template-columns: 1fr 1fr; }
+.signup-form .check-line, .signup-form .btn { grid-column: 1/-1; }
+.form-options { display: flex; justify-content: space-between; align-items: center; font-size: .69rem; }
+.form-options label, .check-line { display: flex; align-items: center; gap: .55rem; font-size: .7rem; text-transform: none; letter-spacing: 0; }
+.form-options button, .auth-switch button, .back-auth, .admin-forgot { padding: 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--green); font-size: .7rem; }
+.auth-switch { margin-top: 1.8rem; display: flex; justify-content: center; gap: .5rem; font-size: .72rem; }
+.auth-switch button { text-transform: uppercase; letter-spacing: .06em; }
+.guest-link { width: 100%; margin-top: 2rem; padding: 1rem; display: flex; justify-content: center; gap: .8rem; border: 1px solid var(--line); background: transparent; color: var(--green); font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; }
+.form-state { margin-bottom: 1.2rem; padding: .85rem 1rem; font-size: .72rem; }
+.form-state.success { border: 1px solid rgba(60,100,52,.3); background: rgba(60,100,52,.08); color: var(--green); }
+.form-state.error { border: 1px solid rgba(122,63,50,.3); background: rgba(122,63,50,.08); color: #7a3f32; }
+.recovery-success { padding: 2rem 0; text-align: center; }
+.recovery-success h2, .recovery-success h3 { margin: 1rem 0 .5rem; font-size: 2.3rem; }
+.recovery-success p { margin-bottom: 1.5rem; color: rgba(40,49,38,.65); font-size: .75rem; line-height: 1.6; }
+.success-seal { width: 3.5rem; height: 3.5rem; margin: auto; display: grid; place-items: center; border: 1px solid var(--green); border-radius: 50%; color: var(--green); }
+.back-auth { margin-top: 1.5rem; }
+.account-page { padding-top: 10rem; }
+.account-header { padding-bottom: 3rem; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.account-header h1 { margin-bottom: 1rem; font-size: clamp(3.2rem,5vw,5.5rem); }
+.account-header > div > p:last-child { margin: 0; color: rgba(40,49,38,.6); }
+.preview-pill { padding: .5rem .7rem; border: 1px solid var(--gold); color: var(--green); font-size: .57rem; letter-spacing: .12em; }
+.account-layout { display: grid; grid-template-columns: 15rem 1fr; gap: 5rem; padding-top: 3rem; }
+.account-nav { display: grid; align-content: start; }
+.account-nav button { padding: 1rem 0; display: flex; justify-content: space-between; border: 0; border-bottom: 1px solid var(--line); background: transparent; font-size: .72rem; text-align: left; }
+.account-nav button.active { color: var(--green); font-weight: 600; }
+.account-nav .logout-link { margin-top: 1rem; color: #7a3f32; }
+.panel-title { margin-bottom: 2.5rem; }
+.panel-title h2 { margin-bottom: .7rem; font-size: 3.4rem; }
+.panel-title > p:last-child, .action-title > div > p:last-child { color: rgba(40,49,38,.62); }
+.account-cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 1rem; }
+.account-cards button { min-height: 13rem; padding: 1.5rem; display: flex; flex-direction: column; align-items: flex-start; border: 1px solid var(--line); background: var(--cream); text-align: left; transition: .2s; }
+.account-cards button:hover { border-color: var(--green); transform: translateY(-2px); }
+.account-cards span { color: var(--gold); font-size: .6rem; }
+.account-cards h3 { margin: auto 0 .4rem; font-size: 1.6rem; }
+.account-cards p { color: rgba(40,49,38,.6); font-size: .7rem; }
+.account-cards b { color: var(--green); font-size: .6rem; text-transform: uppercase; letter-spacing: .08em; }
+.recent-orders { margin-top: 3rem; }
+.list-heading { display: flex; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.list-heading h3 { font-size: 1.5rem; }
+.list-heading button { border: 0; background: none; color: var(--green); font-size: .65rem; text-transform: uppercase; }
+.order-list article { padding: 1.3rem 0; display: grid; grid-template-columns: 1fr .8fr 1.6fr .6fr .7fr; gap: 1rem; align-items: center; border-bottom: 1px solid var(--line); }
+.order-list article > div:not(.order-actions) { display: grid; gap: .35rem; }
+.order-list span, .detail-meta span { color: rgba(40,49,38,.5); font-size: .54rem; letter-spacing: .1em; }
+.order-list strong { font-size: .68rem; }
+.status { width: max-content; padding: .4rem .6rem; border-radius: 2rem; background: rgba(220,180,92,.15); color: var(--green); font-size: .6rem; font-style: normal; }
+.status.completed { background: rgba(60,100,52,.1); }
+.order-actions { grid-column: 1/-1; display: flex; gap: .7rem; }
+.order-actions button { padding: .4rem 0; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--green); font-size: .6rem; text-transform: uppercase; }
+.profile-form, .address-form { max-width: 36rem; display: grid; gap: 1.2rem; }
+.action-title { display: flex; justify-content: space-between; align-items: start; }
+.empty-address { padding: 5rem 1rem; border: 1px dashed var(--line); text-align: center; }
+.empty-address span { color: var(--green); font-size: 2rem; }
+.empty-address h3 { margin: 1rem 0 .5rem; font-size: 1.8rem; }
+.empty-address p { color: rgba(40,49,38,.6); font-size: .75rem; }
+.settings-list { border-top: 1px solid var(--line); }
+.settings-list > div { padding: 1.4rem 0; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+.settings-list span { display: grid; gap: .4rem; }
+.settings-list small { color: rgba(40,49,38,.55); }
+.settings-list button { border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--green); }
+.settings-list .danger-setting { color: #7a3f32; }
+.order-detail-card, .order-track { padding: 2rem; border: 1px solid var(--line); background: var(--cream); }
+.detail-product, .admin-line-item { display: grid; grid-template-columns: 4rem 1fr auto; gap: 1rem; align-items: center; }
+.sample-thumb { width: 4rem; height: 4rem; background: url("https://images.unsplash.com/photo-1615796701805-2094ac54bbf9?auto=format&fit=crop&w=200&q=80") center/cover; }
+.detail-product span, .admin-line-item span { display: grid; gap: .4rem; }
+.detail-product small, .admin-line-item small { color: rgba(40,49,38,.55); }
+.detail-meta { margin-top: 2rem; padding-top: 2rem; display: grid; grid-template-columns: repeat(3,1fr); border-top: 1px solid var(--line); }
+.detail-meta div { display: grid; gap: .5rem; }
+.order-track { margin-top: 1rem; }
+.order-track h3 { font-size: 1.5rem; }
+.order-track > div { position: relative; padding: .7rem 0; display: flex; gap: 1rem; align-items: center; }
+.order-track i { width: 1.7rem; height: 1.7rem; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; font-size: .6rem; font-style: normal; }
+.order-track .complete i { background: var(--green); color: var(--ivory); }
+.logout-state, .admin-logout { min-height: 100vh; display: grid; place-content: center; justify-items: center; text-align: center; }
+.logout-state h1, .admin-logout h1 { margin: 1.5rem 0 1rem; font-size: 4.5rem; }
+.logout-state > p:not(.eyebrow), .admin-logout > p { max-width: 32rem; color: rgba(40,49,38,.6); line-height: 1.7; }
+.logout-state .btn { margin-top: 1.5rem; }
+
+/* Admin */
+.admin-auth { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; background: var(--ivory); }
+.admin-auth-brand { padding: 3rem 4rem; display: flex; flex-direction: column; justify-content: space-between; background: var(--green); color: var(--ivory); }
+.admin-mark { display: grid; width: max-content; }
+.admin-mark strong { font: 500 2rem "Cormorant Garamond"; }
+.admin-mark span { margin-top: .4rem; font-size: .47rem; letter-spacing: .2em; }
+.admin-auth-brand h1 { max-width: 39rem; font-size: clamp(3.5rem,5vw,6rem); }
+.admin-auth-brand > small { color: rgba(244,244,228,.55); font-size: .58rem; letter-spacing: .12em; text-transform: uppercase; }
+.admin-auth-form { padding: 4rem; display: grid; place-items: center; }
+.admin-auth-form > div { width: min(26rem,100%); }
+.admin-auth-form h2 { margin-bottom: .7rem; font-size: 3.2rem; }
+.admin-auth-form > div > p:not(.eyebrow) { color: rgba(40,49,38,.6); }
+.admin-auth-form form { margin-top: 2rem; display: grid; gap: 1.1rem; }
+.admin-auth-form form .btn { width: 100%; margin-top: .5rem; }
+.admin-forgot { margin-top: 1.5rem; }
+.admin-app { min-height: 100vh; display: grid; grid-template-columns: 15rem 1fr; background: var(--ivory); color: var(--ink); }
+.admin-sidebar { position: sticky; top: 0; height: 100vh; padding: 2rem 1.3rem; display: flex; flex-direction: column; background: var(--ink); color: var(--ivory); }
+.admin-sidebar .admin-mark { margin-left: .7rem; }
+.admin-sidebar nav { margin-top: 4rem; display: grid; gap: .3rem; }
+.admin-sidebar nav button { padding: .85rem 1rem; display: flex; align-items: center; gap: .8rem; border: 0; background: transparent; color: rgba(244,244,228,.62); font-size: .72rem; text-align: left; }
+.admin-sidebar nav button i { width: .38rem; height: .38rem; border: 1px solid currentColor; border-radius: 50%; }
+.admin-sidebar nav button.active { background: rgba(244,244,228,.08); color: var(--ivory); }
+.admin-sidebar nav button.active i { border-color: var(--gold); background: var(--gold); }
+.admin-side-foot { margin-top: auto; display: grid; gap: 1rem; }
+.admin-side-foot span { padding: .7rem; border: 1px solid rgba(244,244,228,.14); color: rgba(244,244,228,.5); font-size: .52rem; text-align: center; letter-spacing: .1em; }
+.admin-side-foot button { padding: .7rem; border: 0; background: transparent; color: rgba(244,244,228,.65); text-align: left; }
+.admin-workspace > header { height: 4.5rem; padding: 0 2.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); background: var(--cream); }
+.admin-tools { display: flex; gap: 1.2rem; align-items: center; }
+.admin-tools > button { border: 0; background: none; font-size: .65rem; }
+.admin-tools > span { display: flex; align-items: center; gap: .6rem; }
+.admin-tools > span > i { width: 2rem; height: 2rem; display: grid; place-items: center; border-radius: 50%; background: var(--green); color: var(--ivory); font-size: .58rem; font-style: normal; }
+.admin-tools small { display: grid; font-size: .62rem; }
+.admin-tools small b { color: rgba(40,49,38,.5); font-size: .5rem; font-weight: 400; }
+.admin-mobile-logo { display: none; }
+.admin-page { padding: 3rem 3.5rem 5rem; }
+.admin-page-head { margin-bottom: 2.5rem; display: flex; justify-content: space-between; align-items: end; }
+.admin-page-head p { margin-bottom: .7rem; color: var(--green); font-size: .57rem; font-weight: 600; letter-spacing: .14em; }
+.admin-page-head h1 { margin-bottom: .6rem; font: 500 2.8rem "Cormorant Garamond"; }
+.admin-page-head span { color: rgba(40,49,38,.55); font-size: .72rem; }
+.admin-primary, .admin-secondary { min-height: 2.8rem; padding: .7rem 1.1rem; border: 1px solid var(--green); background: var(--green); color: var(--ivory); font-size: .64rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.admin-secondary { background: transparent; color: var(--green); }
+.admin-notice { margin-bottom: 1.5rem; padding: .8rem 1rem; border-left: 2px solid var(--gold); background: var(--cream); color: rgba(40,49,38,.65); font-size: .67rem; }
+.stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem; }
+.stat-grid article { min-height: 9rem; padding: 1.2rem; display: grid; grid-template-columns: 1fr auto; background: var(--cream); border: 1px solid var(--line); }
+.stat-grid article span { color: var(--gold); font-size: .54rem; }
+.stat-grid article strong { font: 500 2.2rem "Cormorant Garamond"; }
+.stat-grid article p { grid-column: 1/-1; align-self: end; margin: 0; color: rgba(40,49,38,.6); font-size: .65rem; }
+.admin-split { margin-top: 1rem; display: grid; grid-template-columns: 1.5fr .5fr; gap: 1rem; }
+.admin-table-card, .quick-actions, .admin-info-card, .settings-admin-form { padding: 1.5rem; background: var(--cream); border: 1px solid var(--line); overflow-x: auto; }
+.table-title { display: flex; justify-content: space-between; }
+.table-title h2, .quick-actions h2, .admin-table-card > h2, .admin-info-card h2, .settings-admin-form h2, .product-admin-form h2 { font: 500 1.45rem "Cormorant Garamond"; }
+.table-title button { border: 0; background: none; color: var(--green); font-size: .62rem; }
+.admin-empty { min-height: 11rem; display: grid; place-content: center; justify-items: center; gap: .5rem; text-align: center; }
+.admin-empty i { color: var(--green); font-size: 1.7rem; }
+.admin-empty strong { font-size: .73rem; }
+.admin-empty p { margin: 0; color: rgba(40,49,38,.5); font-size: .62rem; }
+.quick-actions { display: grid; align-content: start; }
+.quick-actions button { padding: 1rem 0; display: flex; justify-content: space-between; border: 0; border-bottom: 1px solid var(--line); background: none; font-size: .67rem; text-align: left; }
+.admin-filters { margin-bottom: 1rem; display: flex; gap: .7rem; }
+.admin-filters input, .admin-filters select, .status-select { min-height: 2.8rem; padding: .7rem 1rem; border: 1px solid var(--line); background: var(--cream); font-size: .67rem; }
+.admin-filters input { flex: 1; }
+.admin-table-card table { width: 100%; border-collapse: collapse; font-size: .66rem; text-align: left; }
+.admin-table-card th { padding: .8rem; color: rgba(40,49,38,.45); font-size: .53rem; letter-spacing: .08em; text-transform: uppercase; }
+.admin-table-card td { padding: 1rem .8rem; border-top: 1px solid var(--line); }
+.admin-table-card td button { border: 0; background: none; color: var(--green); font-size: .6rem; }
+.table-status, .available { padding: .35rem .6rem; border-radius: 2rem; background: rgba(220,180,92,.15); color: var(--green); font-size: .56rem; }
+.available { background: rgba(60,100,52,.1); }
+.admin-back { margin-bottom: 1rem; padding: 0; border: 0; background: none; color: var(--green); font-size: .62rem; }
+.admin-detail-grid { display: grid; grid-template-columns: 1fr 20rem; gap: 1rem; }
+.admin-line-item { padding: 1rem 0; border-top: 1px solid var(--line); }
+.admin-total { padding-top: 1rem; display: flex; justify-content: space-between; border-top: 1px solid var(--line); }
+.admin-info-card h2:not(:first-child) { margin-top: 2rem; }
+.admin-info-card p { margin: .4rem 0; color: rgba(40,49,38,.58); font-size: .66rem; }
+.product-admin-form { display: grid; grid-template-columns: 1fr 22rem; gap: 1rem; }
+.product-admin-form > section, .product-admin-form > aside { padding: 1.5rem; display: grid; align-content: start; gap: 1.2rem; background: var(--cream); border: 1px solid var(--line); }
+.category-admin-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; }
+.category-admin-grid article { min-height: 12rem; padding: 1.3rem; display: flex; flex-direction: column; background: var(--cream); border: 1px solid var(--line); }
+.category-admin-grid article > span { color: var(--gold); font-size: .55rem; }
+.category-admin-grid h2 { margin: auto 0 .3rem; font-size: 1.5rem; }
+.category-admin-grid p { color: rgba(40,49,38,.5); font-size: .62rem; }
+.category-admin-grid article div { display: flex; gap: .7rem; border-top: 1px solid var(--line); padding-top: .7rem; }
+.category-admin-grid button { padding: 0; border: 0; background: none; color: var(--green); font-size: .58rem; }
+.settings-admin-form { max-width: 42rem; display: grid; gap: 1rem; }
+.settings-admin-form h2:not(:first-child) { margin-top: 1rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.admin-logout { background: var(--ivory); }
+.admin-logout .admin-mark { position: absolute; top: 2rem; left: 2rem; color: var(--green); }
+.admin-logout .admin-primary { margin-top: 1.5rem; }
+.admin-switch-layer { position: fixed; z-index: 200; inset: 0; display: grid; place-items: center; padding: 1rem; }
+.admin-switch-scrim { position: absolute; inset: 0; width: 100%; border: 0; background: rgba(40,49,38,.6); }
+.admin-switch-layer > section { position: relative; width: min(27rem,100%); padding: 2.5rem; border-top: 3px solid var(--gold); background: var(--cream); }
+.admin-switch-layer h2 { margin-bottom: .8rem; font-size: 2.6rem; }
+.admin-switch-layer section > p:not(.eyebrow) { color: rgba(40,49,38,.62); font-size: .72rem; line-height: 1.6; }
+.admin-switch-layer section > div { margin-top: 1.7rem; display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+
+@media (max-width: 1050px) {
+  .section { padding-inline: 2rem; }
+  .nav-shell { padding-inline: 2rem; grid-template-columns: 1fr auto; }
+  .nav-links { position: fixed; inset: 0; z-index: -1; padding: 9rem 2rem 3rem; display: none; flex-direction: column; align-items: flex-start; gap: 1.4rem; background: var(--ivory); }
+  .nav-links.open { display: flex; }
+  .header.home-header .nav-links.open > button:not(.btn) { color: var(--ink); }
+  .nav-links > button:not(.btn) { font: 500 2.6rem "Cormorant Garamond"; }
+  .nav-links .btn { display: inline-flex; margin-top: 1rem; }
+  .nav-links .mobile-account-link { display: block; font: 600 .7rem "DM Sans"; color: var(--green); text-transform: uppercase; letter-spacing: .08em; }
+  .nav-links .mobile-switch-link { display: block; font: 500 .65rem "DM Sans"; color: rgba(40,49,38,.6); text-transform: uppercase; letter-spacing: .08em; }
+  .desktop-icon, .desktop-order { display: none; }
+  .mobile-toggle { display: grid; }
+  .hero-copy { left: 2rem; }
+  .hero-note { right: 2rem; }
+  .product-grid { grid-template-columns: repeat(2, 1fr); }
+  .category-grid { grid-template-columns: repeat(2, 1fr); }
+  .story, .detail-grid, .custom-builder, .contact, .checkout { gap: 3.5rem; }
+  .story { grid-template-columns: 1fr 1fr; }
+  .footer-main { padding-inline: 2rem; grid-template-columns: 1fr 1fr; }
+  .auth-editorial { display: none; }
+  .auth-page { grid-template-columns: 1fr; }
+  .account-layout { grid-template-columns: 12rem 1fr; gap: 2rem; }
+  .admin-app { grid-template-columns: 12rem 1fr; }
+  .stat-grid { grid-template-columns: repeat(2,1fr); }
+  .category-admin-grid { grid-template-columns: repeat(2,1fr); }
+  .welcome-entry { grid-template-columns: .85fr 1.15fr; }
+  .welcome-choices { padding-inline: 2.5rem; }
+  .role-content { gap: 3rem; }
+}
+
+@media (max-width: 700px) {
+  h1 { font-size: 3.7rem; }
+  h2 { font-size: 2.9rem; }
+  .section { padding: 5rem 1.15rem; }
+  .page { padding-top: 5rem; }
+  .header { height: 5rem; }
+  .nav-shell { padding-inline: 1rem; }
+  .logo { font-size: 1.65rem; }
+  .hero { height: 48rem; min-height: 0; margin-top: 0; }
+  .hero > img { object-position: 55% center; }
+  .hero-overlay { background: linear-gradient(0deg, rgba(25,37,22,.84), rgba(25,37,22,.06) 74%); }
+  .hero-copy { left: 1.15rem; right: 1.15rem; bottom: 4.5rem; }
+  .hero-copy h1 { margin-bottom: 1.4rem; }
+  .hero-copy > p:not(.eyebrow) { font-size: .83rem; }
+  .hero-note { display: none; }
+  .hero-actions { margin-top: 1.8rem; }
+  .section-heading { align-items: start; gap: 2rem; }
+  .section-heading .text-link { display: none; }
+  .product-grid { grid-template-columns: 1fr; gap: 3.5rem; }
+  .product-image { height: 27rem; }
+  .category-inner { padding-block: 5rem; }
+  .section-heading.inverse { display: block; }
+  .section-heading.inverse > p { margin-top: 1.5rem; }
+  .category-grid { grid-template-columns: 1fr 1fr; }
+  .category-grid button { min-height: 8.5rem; padding: 1rem; }
+  .category-grid button strong { font-size: 1.2rem; }
+  .story { grid-template-columns: 1fr; }
+  .story-image img { height: 29rem; }
+  .story-image span { right: 0; }
+  .page-title { padding: 5rem 1rem 3.5rem; }
+  .search-box { float: none; width: 100%; }
+  .menu-tools > select { float: none; width: 100%; margin-top: .7rem; }
+  .filter-row { padding-block: 1.2rem 2rem; }
+  .detail { padding-top: 7rem; }
+  .detail-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .detail-image img { height: 28rem; }
+  .purchase-row { flex-direction: column; }
+  .purchase-row .quantity { width: 100%; justify-content: space-between; }
+  .custom-hero { min-height: 34rem; }
+  .custom-hero > div { padding: 4rem 1.15rem; }
+  .custom-builder { grid-template-columns: 1fr; gap: 2rem; }
+  .custom-builder form, .contact-form { grid-template-columns: 1fr; padding: 1.2rem; }
+  .custom-builder .cake-form { padding: 0; }
+  .custom-intro { margin-bottom: 2.5rem; }
+  .cake-step { padding: 1.4rem 1rem; border-radius: 1rem; }
+  .cake-step legend { padding: 0 .5rem; font-size: 1.65rem; }
+  .cake-choice-grid, .contact-field-grid { grid-template-columns: 1fr; }
+  .cake-choice-grid button { grid-template-columns: 4.5rem 1fr 1rem; }
+  .cake-choice-grid img { height: 4rem; }
+  .cake-form-submit { bottom: .5rem; gap: 1rem; align-items: stretch; flex-direction: column; }
+  .cake-form-submit .btn { width: 100%; }
+  .full, .form-submit { grid-column: auto; }
+  .form-submit { align-items: stretch; gap: 1rem; flex-direction: column; }
+  .editorial-hero { min-height: 29rem; grid-template-columns: 1fr; gap: 2rem; align-content: center; }
+  .editorial-hero > p { padding: 0; }
+  .about-image { height: 30rem; padding: 0; }
+  .philosophy { grid-template-columns: 1fr; gap: 2rem; }
+  .contact { padding-top: 8rem; grid-template-columns: 1fr; gap: 4rem; }
+  .contact-list > * { flex-direction: column; gap: .5rem; }
+  .checkout { padding-top: 7rem; grid-template-columns: 1fr; gap: 3rem; }
+  .checkout h1 { font-size: 3.5rem; }
+  .two-col { grid-template-columns: 1fr; }
+  .order-summary { position: static; }
+  .confirmation h1 { font-size: 3.5rem; }
+  .status-line { grid-template-columns: 1fr; gap: 1.3rem; text-align: left; }
+  .status-line div { grid-template-columns: 2rem 1fr; justify-items: start; align-items: center; }
+  .status-line div::before { top: -1.3rem; left: .9rem; width: 1px; height: 1.3rem; }
+  .footer-main { padding: 4rem 1.15rem; grid-template-columns: 1fr; gap: 2.5rem; }
+  .footer-bottom { padding-inline: 1.15rem; }
+  .account-menu-wrap { display: none; }
+  .welcome-entry { grid-template-columns: 1fr; }
+  .welcome-visual { min-height: 16rem; height: 30vh; }
+  .welcome-wordmark { top: 1.5rem; left: 1.25rem; }
+  .welcome-wordmark strong { font-size: 1.8rem; }
+  .welcome-visual > p { left: 1.25rem; bottom: 1.5rem; font-size: 2.2rem; }
+  .welcome-choices { padding: 3rem 1.25rem; place-items: start; }
+  .welcome-inner > h1 { font-size: 3.5rem; }
+  .welcome-lede { margin-bottom: 2rem; }
+  .entry-options article { grid-template-columns: 1.5rem 1fr; }
+  .entry-options article > button { grid-column: 2; width: 100%; }
+  .entry-admin-btn { justify-content: center; }
+  .auth-gate { padding: 3rem 1.3rem 2rem; }
+  .gate-actions { grid-template-columns: 1fr; }
+  .gate-signup { min-height: 3.15rem; }
+  .role-header { height: 5rem; padding: 0 1.2rem; }
+  .role-header .welcome-wordmark span, .role-header > p { display: none; }
+  .role-content { padding: 3rem 1.2rem; grid-template-columns: 1fr; gap: 2.5rem; }
+  .role-intro h1 { font-size: 3.6rem; }
+  .role-cards { grid-template-columns: 1fr; }
+  .role-cards article { min-height: 23rem; }
+  .role-cards article + article { border-left: 0; border-top: 1px solid var(--line); }
+  .role-ornament { margin-top: 2rem; }
+  .role-footer { padding-inline: 1.2rem; }
+  .auth-page { padding-top: 5rem; }
+  .auth-content { padding: 4rem 1.15rem; }
+  .signup-form { grid-template-columns: 1fr; }
+  .signup-form .check-line, .signup-form .btn { grid-column: auto; }
+  .account-page { padding-top: 7rem; }
+  .account-header { align-items: start; gap: 1rem; flex-direction: column; }
+  .account-layout { grid-template-columns: 1fr; padding-top: 1.5rem; }
+  .account-nav { display: flex; overflow-x: auto; border-bottom: 1px solid var(--line); }
+  .account-nav button { flex: none; padding: .8rem 1rem; border-bottom: 0; }
+  .account-nav button span, .account-nav .logout-link { display: none; }
+  .account-cards { grid-template-columns: 1fr; }
+  .order-list article { grid-template-columns: 1fr 1fr; }
+  .order-products { grid-column: 1/-1; }
+  .action-title { gap: 1rem; flex-direction: column; }
+  .detail-meta { grid-template-columns: 1fr; gap: 1rem; }
+  .logout-state h1, .admin-logout h1 { font-size: 3.3rem; }
+  .admin-auth { grid-template-columns: 1fr; }
+  .admin-auth-brand { min-height: 16rem; padding: 2rem 1.2rem; }
+  .admin-auth-brand h1 { margin: 3rem 0 0; font-size: 2.6rem; }
+  .admin-auth-brand > small { display: none; }
+  .admin-auth-form { padding: 3rem 1.2rem; }
+  .admin-app { display: block; }
+  .admin-sidebar { position: static; width: 100%; height: auto; padding: 1rem; flex-direction: row; overflow-x: auto; }
+  .admin-sidebar .admin-mark, .admin-side-foot { display: none; }
+  .admin-sidebar nav { margin: 0; display: flex; }
+  .admin-sidebar nav button { flex: none; }
+  .admin-workspace > header { padding-inline: 1rem; }
+  .admin-mobile-logo { display: block; font: 500 1.2rem "Cormorant Garamond"; }
+  .admin-tools > span, .admin-tools > button:first-child { display: none; }
+  .admin-page { padding: 2rem 1rem 4rem; }
+  .admin-page-head { align-items: start; gap: 1rem; flex-direction: column; }
+  .stat-grid { grid-template-columns: 1fr 1fr; }
+  .admin-split, .admin-detail-grid, .product-admin-form { grid-template-columns: 1fr; }
+  .admin-table-card { padding: 1rem; }
+  .admin-table-card table { min-width: 44rem; }
+  .admin-filters { flex-direction: column; }
+  .category-admin-grid { grid-template-columns: 1fr 1fr; }
+}

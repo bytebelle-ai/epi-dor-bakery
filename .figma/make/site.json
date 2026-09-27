@@ -1,0 +1,10 @@
+{
+  "description": "Experience a premium online shopping platform for Épi d’Or, offering artisanal baked goods with a seamless, interactive menu and customizable options.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
