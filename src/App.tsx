@@ -1,3 +1,4 @@
+import { useProducts } from "./ProductsContext";
 import { useEffect, useMemo, useState } from "react";
 import "./index.css";
 import {
@@ -47,7 +48,7 @@ const make = (
   image,
 });
 
-const products: Product[] = [
+export const fallbackProducts: Product[] = [
   make("Brownies", "Classic Chocolate Brownie", "Dense, fudgy and made with rich dark chocolate", [{ label: "Per Piece", price: 129 }], photos.slice),
   make("Brownies", "Blondie", "Buttery, golden, with notes of vanilla and brown sugar", [{ label: "Per Piece", price: 149 }], photos.cookies),
   make("Brownies", "Oats & Caramel Brownie", "Toasted oats folded in with a ribbon of salted caramel", [{ label: "Per Piece", price: 199 }], photos.slice),
@@ -185,6 +186,7 @@ function ProductCard({ product, view, add }: { product: Product; view: (p: Produ
 }
 
 function Home({ navigate, view, add }: { navigate: (p: string, category?: string) => void; view: (p: Product) => void; add: (p: Product, v: Variant) => void }) {
+  const products = useProducts();
   const featuredNames = ["Classic Chocolate Brownie", "Classic Cheesecake", "Pistachio White Cookie", "Chocolate Tub Cake", "Classic Chocolate Cake"];
   const featured = featuredNames.map((n, i) => products.find((p) => p.name === n && (i !== 2 || p.category === "Cookies"))!).filter(Boolean);
   return <main>
@@ -226,6 +228,7 @@ function Home({ navigate, view, add }: { navigate: (p: string, category?: string
 }
 
 function MenuPage({ initialCategory, view, add }: { initialCategory: string; view: (p: Product) => void; add: (p: Product, v: Variant) => void }) {
+  const products = useProducts();
   const [category, setCategory] = useState(initialCategory || "All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("featured");
@@ -270,6 +273,7 @@ function Detail({ product, add, buyNow, back }: { product: Product; add: (p: Pro
 }
 
 function CustomCakes({ add }: { add: (p: Product, v: Variant, quantity?: number, note?: string) => void }) {
+  const products = useProducts();
   const cakes = products.filter((p) => p.category === "Celebration Cakes");
   const [cake, setCake] = useState(cakes[0]);
   const [variant, setVariant] = useState(cakes[0].variants[0]);
@@ -365,6 +369,7 @@ function Footer({ navigate }: { navigate: (p: string) => void }) {
 }
 
 export default function App() {
+  const products = useProducts();
   const [path, setPath] = useState(window.location.pathname === "/" ? "/" : window.location.pathname.replace(/\/$/, ""));
   const [entryChosen, setEntryChosen] = useState(() => sessionStorage.getItem("epidor-entry") === "customer");
   const [category, setCategory] = useState("");
