@@ -12,6 +12,8 @@ import {
   WelcomeEntry,
 } from "./AuthScreens";
 import { AdminApp, AdminLogin, AdminLogout } from "./AdminScreens";
+import { AdminGuard } from "./AdminGuard";
+import { supabase } from "./supabase";
 
 type Variant = { label: string; price: number };
 type Product = {
@@ -430,7 +432,7 @@ export default function App() {
   const accountRoute = path.startsWith("/account");
   const adminRoute = path.startsWith("/admin");
   const logoutCustomer = () => { setDemoLoggedIn(false); setCart([]); navigate("/logout"); };
-  const logoutAdmin = () => navigate("/admin/logout");
+  const logoutAdmin = () => { navigate("/admin/logout"); supabase.auth.signOut(); };
   const completeCustomerAuthentication = () => {
     setDemoLoggedIn(true);
     if (pendingAction) {
@@ -453,7 +455,7 @@ export default function App() {
     if (path === "/admin/login") return <AdminLogin navigate={navigate} />;
     if (path === "/admin/forgot-password") return <AdminLogin navigate={navigate} forgot />;
     if (path === "/admin/logout") return <AdminLogout navigate={navigate} />;
-    return <AdminApp path={path} navigate={navigate} logout={logoutAdmin} />;
+    return <AdminGuard navigate={navigate}><AdminApp path={path} navigate={navigate} logout={logoutAdmin} /></AdminGuard>;
   }
 
   if (path === "/" && !entryChosen) {

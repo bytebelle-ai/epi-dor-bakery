@@ -1,3 +1,4 @@
+import { supabase } from "./supabase";
 import { FormEvent, useState } from "react";
 
 type Navigate = (path: string) => void;
@@ -25,10 +26,22 @@ function AdminMark() {
 
 export function AdminLogin({ navigate, forgot = false }: { navigate: Navigate; forgot?: boolean }) {
   const [sent, setSent] = useState(false);
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (forgot) setSent(true);
-    else navigate("/admin/dashboard");
+    if (forgot) { setSent(true); return; }
+    const form = event.currentTarget;
+    const email = (form.querySelector('input[type="email"]') as HTMLInputElement).value;
+    const password = (form.querySelector('input[type="password"]') as HTMLInputElement).value;
+    setBusy(true);
+    setError("");
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    if (signInError || !data.user) { setBusy(false); setError("Invalid email or password."); return; }
+    const { data: adminRow } = await supabase.from("admins").select("user_id").eq("user_id", data.user.id).maybeSingle();
+    if (!adminRow) { await supabase.auth.signOut(); setBusy(false); setError("This account is not an admin."); return; }
+    setBusy(false);
+    navigate("/admin/dashboard");
   };
   return <main className="admin-auth">
     <section className="admin-auth-brand"><AdminMark /><div><p className="eyebrow light">BAKERY MANAGEMENT</p><h1>Crafted with care.<br /><em>Managed with clarity.</em></h1></div><small>Frontend administration preview</small></section>
@@ -36,7 +49,7 @@ export function AdminLogin({ navigate, forgot = false }: { navigate: Navigate; f
       <p className="eyebrow">{forgot ? "RECOVERY" : "SECURE AREA"}</p><h2>{forgot ? "Reset Admin Password" : "Épi d’Or Admin"}</h2><p>{forgot ? "Enter the authorized admin email to prepare a reset link." : "Sign in to manage your bakery."}</p>
       <div className="prototype-note">Frontend preview only — no admin credentials are submitted or stored.</div>
       {sent ? <div className="recovery-success"><div className="success-seal">✓</div><h3>Reset State Ready</h3><p>No email was sent. This screen is ready for backend integration.</p><button className="btn" onClick={() => navigate("/admin/login")}>Return to Login</button></div> :
-      <form onSubmit={submit}><label className="field">Email<input required type="email" autoComplete="email" /></label>{!forgot && <label className="field">Password<input required type="password" autoComplete="current-password" /></label>}<button className="btn" type="submit">{forgot ? "Send Reset Link" : "Login to Dashboard"}</button></form>}
+      <form onSubmit={submit}><label className="field">Email<input required type="email" autoComplete="email" /></label>{!forgot && <label className="field">Password<input required type="password" autoComplete="current-password" /></label>}{error && <p role="alert" style={{ color: "#b3261e", margin: "0 0 12px" }}>{error}</p>}<button className="btn" type="submit" disabled={busy}>{forgot ? "Send Reset Link" : busy ? "Signing in..." : "Login to Dashboard"}</button></form>}
       {!forgot && <button className="admin-forgot" onClick={() => navigate("/admin/forgot-password")}>Forgot Password?</button>}
     </div></section>
   </main>;
