@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 type Navigate = (path: string) => void;
 
@@ -96,15 +96,144 @@ function AdminOrderDetail({ navigate }: { navigate: Navigate }) {
 }
 
 function AdminProducts({ navigate }: { navigate: Navigate }) {
-  return <div className="admin-page"><PageHead eyebrow="CATALOGUE" title="Products" copy="Manage menu items, pricing and availability." action={<button className="admin-primary" onClick={() => navigate("/admin/products/add")}>+ Add Product</button>} /><div className="admin-filters"><input placeholder="Search products" /><select><option>All categories</option>{["Brownies", "Cheesecakes", "Cookies", "Tub Cakes", "Celebration Cakes", "Sugar-Free Goodies", "Breads", "Savour Jars"].map((x) => <option key={x}>{x}</option>)}</select></div><div className="admin-table-card"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Availability</th><th /></tr></thead><tbody>{adminProducts.map((p, i) => <tr key={p[0]}><td><strong>{p[0]}</strong></td><td>{p[1]}</td><td>{p[2]}</td><td><span className="available">{p[3]}</span></td><td><button onClick={() => navigate(`/admin/products/edit/${i + 1}`)}>Edit →</button></td></tr>)}</tbody></table></div></div>;
+  const [rows, setRows] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("All categories");
+
+  useEffect(() => {
+    supabase
+      .from("products")
+      .select("id,name,category,variants,active,sort_order")
+      .order("sort_order")
+      .then(({ data, error: err }) => {
+        if (err) setError(err.message);
+        else setRows(data ?? []);
+        setLoading(false);
+      });
+  }, []);
+
+  const price = (variants: { price: number }[]) => {
+    const n = (variants ?? []).map((v) => v.price);
+    if (n.length === 0) return "-";
+    const lo = Math.min(...n);
+    const hi = Math.max(...n);
+    return lo === hi ? `\u20B9${lo}` : `\u20B9${lo} \u2013 \u20B9${hi}`;
+  };
+
+  const shown = rows.filter(
+    (p) =>
+      (category === "All categories" || p.category === category) &&
+      p.name.toLowerCase().includes(query.toLowerCase()),
+  );
+
+  return <div className="admin-page"><PageHead eyebrow="CATALOGUE" title="Products" copy="Manage menu items, pricing and availability." action={<button className="admin-primary" onClick={() => navigate("/admin/products/add")}>+ Add Product</button>} />
+    <div className="admin-filters">
+      <input placeholder="Search products" value={query} onChange={(e) => setQuery(e.target.value)} />
+      <select value={category} onChange={(e) => setCategory(e.target.value)}>
+        <option>All categories</option>
+        {["Brownies", "Cheesecakes", "Cookies", "Tub Cakes", "Celebration Cakes", "Sugar-Free Goodies", "Breads", "Savour Jars"].map((x) => <option key={x}>{x}</option>)}
+      </select>
+    </div>
+    {error && <p role="alert" style={{ color: "#b3261e" }}>Could not load products: {error}</p>}
+    {loading ? <p>Loading products...</p> :
+    <div className="admin-table-card"><table><thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Availability</th><th /></tr></thead><tbody>
+      {shown.map((p) => <tr key={p.id}><td><strong>{p.name}</strong></td><td>{p.category}</td><td>{price(p.variants)}</td><td><span className="available">{p.active ? "Available" : "Hidden"}</span></td><td><button onClick={() => navigate(`/admin/products/edit/${p.id}`)}>Edit</button></td></tr>)}
+    </tbody></table></div>}
+  </div>;
 }
+type VariantRow = { label: string; price: string };
 
 function ProductForm({ navigate, edit = false }: { navigate: Navigate; edit?: boolean }) {
-  const [saved, setSaved] = useState(false);
-  return <div className="admin-page"><button className="admin-back" onClick={() => navigate("/admin/products")}>← Back to products</button><PageHead eyebrow="CATALOGUE" title={edit ? "Edit Product" : "Add Product"} copy={edit ? "Update catalogue information and availability." : "Create a new catalogue entry when backend access is available."} /><div className="admin-notice">This form is a UI preview. It does not alter the authoritative catalogue.</div>{saved && <div className="form-state success">Product form preview saved locally for this screen only.</div>}<form className="product-admin-form" onSubmit={(e) => { e.preventDefault(); setSaved(true); }}>
-    <section><h2>Product information</h2><label className="field">Product Name<input required defaultValue={edit ? "Classic Chocolate Brownie" : ""} /></label><label className="field">Description<textarea required defaultValue={edit ? "Dense, fudgy and made with rich dark chocolate" : ""} /></label><label className="field">Category<select defaultValue={edit ? "Brownies" : ""}><option value="" disabled>Select category</option>{["Brownies", "Cheesecakes", "Cookies", "Tub Cakes", "Celebration Cakes", "Sugar-Free Goodies", "Breads", "Savour Jars"].map((x) => <option key={x}>{x}</option>)}</select></label></section>
-    <aside><h2>Pricing &amp; status</h2><label className="field">Price<input type="number" min="0" defaultValue={edit ? 129 : undefined} /></label><label className="field">Product Image<input type="file" accept="image/*" /></label><label className="check-line"><input defaultChecked type="checkbox" /> Product is available</label><button className="admin-secondary" type="button">+ Add Variant</button><button className="admin-primary" type="submit">{edit ? "Save Changes" : "Add Product"}</button></aside>
-  </form></div>;
+  const editId = edit ? decodeURIComponent(window.location.pathname.split("/").filter(Boolean).pop() ?? "") : "";
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [image, setImage] = useState("");
+  const [active, setActive] = useState(true);
+  const [variants, setVariants] = useState<VariantRow[]>([{ label: "", price: "" }]);
+  const [loading, setLoading] = useState(edit);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (!edit) return;
+    supabase.from("products").select("*").eq("id", editId).maybeSingle().then(({ data, error: err }) => {
+      if (err || !data) setError(err?.message ?? "Product not found.");
+      else {
+        setName(data.name);
+        setDescription(data.description);
+        setCategory(data.category);
+        setImage(data.image);
+        setActive(data.active);
+        const rows = (data.variants ?? []).map((v: { label: string; price: number }) => ({ label: v.label, price: String(v.price) }));
+        setVariants(rows.length > 0 ? rows : [{ label: "", price: "" }]);
+      }
+      setLoading(false);
+    });
+  }, []);
+
+  const setVariant = (i: number, key: keyof VariantRow, value: string) =>
+    setVariants(variants.map((v, idx) => (idx === i ? { ...v, [key]: value } : v)));
+
+  const save = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+    const cleaned = variants.map((v) => ({ label: v.label.trim(), price: Number(v.price) }));
+    if (cleaned.some((v) => v.price === 0 && variants.length === 0) || cleaned.some((v) => !Number.isFinite(v.price) || v.price < 0)) {
+      setError("Enter a valid price for every variant.");
+      return;
+    }
+    setBusy(true);
+    const fields = { name: name.trim(), description: description.trim(), category, image: image.trim(), active, variants: cleaned };
+    let result;
+    if (edit) result = await supabase.from("products").update(fields).eq("id", editId);
+    else {
+      const id = `${category}-${name}`.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+      result = await supabase.from("products").insert({ id, ...fields, sort_order: 100 });
+    }
+    setBusy(false);
+    if (result.error) setError(result.error.message);
+    else if (edit) setMessage("Changes saved.");
+    else navigate("/admin/products");
+  };
+
+  const remove = async () => {
+    if (!window.confirm("Delete this product permanently?")) return;
+    setBusy(true);
+    const { error: err } = await supabase.from("products").delete().eq("id", editId);
+    setBusy(false);
+    if (err) setError(err.message);
+    else navigate("/admin/products");
+  };
+
+  if (loading) return <div className="admin-page"><p>Loading product...</p></div>;
+
+  return <div className="admin-page"><button className="admin-back" onClick={() => navigate("/admin/products")}>&larr; Back to products</button><PageHead eyebrow="CATALOGUE" title={edit ? "Edit Product" : "Add Product"} copy={edit ? "Update catalogue information and availability." : "Create a new catalogue entry."} />
+    {message && <div className="form-state success">{message}</div>}
+    {error && <p role="alert" style={{ color: "#b3261e" }}>{error}</p>}
+    <form className="product-admin-form" onSubmit={save}>
+      <section><h2>Product information</h2>
+        <label className="field">Product Name<input required value={name} onChange={(e) => setName(e.target.value)} /></label>
+        <label className="field">Description<textarea required value={description} onChange={(e) => setDescription(e.target.value)} /></label>
+        <label className="field">Category<select required value={category} onChange={(e) => setCategory(e.target.value)}><option value="" disabled>Select category</option>{["Brownies", "Cheesecakes", "Cookies", "Tub Cakes", "Celebration Cakes", "Sugar-Free Goodies", "Breads", "Savour Jars"].map((x) => <option key={x}>{x}</option>)}</select></label>
+        <label className="field">Image URL<input value={image} onChange={(e) => setImage(e.target.value)} placeholder="https://..." /></label>
+      </section>
+      <aside><h2>Pricing &amp; status</h2>
+        {variants.map((v, i) => <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+          <label className="field" style={{ flex: 1 }}>Size / label<input value={v.label} onChange={(e) => setVariant(i, "label", e.target.value)} placeholder="e.g. 500 g" /></label>
+          <label className="field" style={{ width: 110 }}>Price (&#8377;)<input required type="number" min="0" value={v.price} onChange={(e) => setVariant(i, "price", e.target.value)} /></label>
+          {variants.length > 1 && <button type="button" className="admin-secondary" onClick={() => setVariants(variants.filter((_, idx) => idx !== i))}>Remove</button>}
+        </div>)}
+        <button className="admin-secondary" type="button" onClick={() => setVariants([...variants, { label: "", price: "" }])}>+ Add Variant</button>
+        <label className="check-line"><input checked={active} onChange={(e) => setActive(e.target.checked)} type="checkbox" /> Product is available</label>
+        <button className="admin-primary" type="submit" disabled={busy}>{busy ? "Saving..." : edit ? "Save Changes" : "Add Product"}</button>
+        {edit && <button className="admin-secondary" type="button" disabled={busy} onClick={remove}>Delete Product</button>}
+      </aside>
+    </form></div>;
 }
 
 function AdminCategories() {
