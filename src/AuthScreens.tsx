@@ -1,3 +1,4 @@
+import { supabase } from "./supabase";
 import { FormEvent, useState } from "react";
 
 type Navigate = (path: string) => void;
@@ -125,14 +126,21 @@ function AuthShell({
 
 export function CustomerLogin({ navigate, onDemoLogin }: { navigate: Navigate; onDemoLogin: () => void }) {
   const [error, setError] = useState("");
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const [busy, setBusy] = useState(false);
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+    const form = event.currentTarget;
+    const email = (form.querySelector('input[type="email"]') as HTMLInputElement).value;
+    const password = (form.querySelector('input[type="password"]') as HTMLInputElement).value;
+    setBusy(true);
+    const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+    setBusy(false);
+    if (err) { setError("Invalid email or password."); return; }
     onDemoLogin();
   };
   return (
     <AuthShell eyebrow="CUSTOMER ACCOUNT" title="Welcome Back" copy="Sign in to continue your Épi d’Or experience.">
-      <div className="prototype-note">Frontend preview only — no credentials are submitted or stored.</div>
       {error && <div className="form-state error">{error}</div>}
       <form className="auth-form" onSubmit={submit}>
         <label className="field">Email Address<input required type="email" autoComplete="email" placeholder="you@example.com" /></label>
@@ -141,7 +149,7 @@ export function CustomerLogin({ navigate, onDemoLogin }: { navigate: Navigate; o
           <label><input type="checkbox" /> Remember me</label>
           <button type="button" onClick={() => navigate("/forgot-password")}>Forgot Password?</button>
         </div>
-        <button className="btn" type="submit">Login</button>
+        <button className="btn" type="submit" disabled={busy}>{busy ? "Signing in..." : "Login"}</button>
       </form>
       <div className="auth-switch"><span>Don’t have an account?</span><button onClick={() => navigate("/signup")}>Create Account</button></div>
       <button className="guest-link" onClick={() => navigate("/checkout")}>Continue as Guest <IconArrow /></button>
@@ -151,17 +159,33 @@ export function CustomerLogin({ navigate, onDemoLogin }: { navigate: Navigate; o
 
 export function CustomerSignup({ navigate, onDemoLogin }: { navigate: Navigate; onDemoLogin: () => void }) {
   const [success, setSuccess] = useState(false);
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+  const [busy, setBusy] = useState(false);
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSuccess(true);
-    window.setTimeout(() => {
-      onDemoLogin();
-    }, 700);
+    const form = event.currentTarget;
+    const get = (sel: string) => (form.querySelector(sel) as HTMLInputElement).value;
+    const passwords = form.querySelectorAll('input[type="password"]');
+    const password = (passwords[0] as HTMLInputElement).value;
+    if (password !== (passwords[1] as HTMLInputElement).value) { setError("Passwords do not match."); return; }
+    setBusy(true);
+    setError("");
+    const { data, error: err } = await supabase.auth.signUp({
+      email: get('input[type="email"]'),
+      password,
+      options: { data: { full_name: get('input[autocomplete="name"]'), phone: get('input[type="tel"]'), dob: get('input[type="date"]') } },
+    });
+    setBusy(false);
+    if (err) { setError(err.message); return; }
+    if (data.session) { setSuccess(true); window.setTimeout(() => onDemoLogin(), 700); }
+    else setInfo("Check your email to confirm your account, then log in.");
   };
   return (
     <AuthShell eyebrow="BECOME PART OF ÉPI D’OR" title="Create Your Account" copy="Join Épi d’Or and keep your favourite orders close.">
-      <div className="prototype-note">Frontend preview only — form values are not persisted.</div>
       {success && <div className="form-state success">Account preview created. Opening your account…</div>}
+      {error && <div className="form-state error">{error}</div>}
+      {info && <div className="form-state success">{info}</div>}
       <form className="auth-form signup-form" onSubmit={submit}>
         <label className="field">Full Name<input required autoComplete="name" /></label>
         <label className="field">Email Address<input required type="email" autoComplete="email" /></label>
@@ -170,7 +194,7 @@ export function CustomerSignup({ navigate, onDemoLogin }: { navigate: Navigate; 
         <label className="field">Password<input required type="password" autoComplete="new-password" minLength={8} /></label>
         <label className="field">Confirm Password<input required type="password" autoComplete="new-password" minLength={8} /></label>
         <label className="check-line"><input required type="checkbox" /> <span>I agree to the Terms &amp; Privacy Policy</span></label>
-        <button className="btn" type="submit">Create Account</button>
+        <button className="btn" type="submit" disabled={busy}>{busy ? "Creating..." : "Create Account"}</button>
       </form>
       <div className="auth-switch"><span>Already have an account?</span><button onClick={() => navigate("/login")}>Login</button></div>
     </AuthShell>
@@ -330,5 +354,5 @@ function Settings({ navigate }: { navigate: Navigate }) {
 }
 
 export function LogoutState({ navigate }: { navigate: Navigate }) {
-  return <main className="page logout-state section"><div className="success-seal">✓</div><p className="eyebrow">SIGNED OUT</p><h1>Until next time.</h1><p>You have left the frontend account preview. No secure session was created or stored.</p><button className="btn" onClick={() => navigate("/login")}>Return to Login</button></main>;
+  return <main className="page logout-state section"><div className="success-seal">✓</div><p className="eyebrow">SIGNED OUT</p><h1>Until next time.</h1><p>You have been signed out successfully. See you again soon.</p><button className="btn" onClick={() => navigate("/login")}>Return to Login</button></main>;
 }

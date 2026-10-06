@@ -379,6 +379,11 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [demoLoggedIn, setDemoLoggedIn] = useState(false);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setDemoLoggedIn(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => setDemoLoggedIn(!!session));
+    return () => sub.subscription.unsubscribe();
+  }, []);
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const [authDestination, setAuthDestination] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<{ product: Product; variant: Variant; quantity: number; note: string; next: "cart" | "checkout"; returnPath: string } | null>(null);
@@ -431,7 +436,7 @@ export default function App() {
   const customerAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password"].includes(path);
   const accountRoute = path.startsWith("/account");
   const adminRoute = path.startsWith("/admin");
-  const logoutCustomer = () => { setDemoLoggedIn(false); setCart([]); navigate("/logout"); };
+  const logoutCustomer = () => { supabase.auth.signOut(); setDemoLoggedIn(false); setCart([]); navigate("/logout"); };
   const logoutAdmin = () => { navigate("/admin/logout"); supabase.auth.signOut(); };
   const completeCustomerAuthentication = () => {
     setDemoLoggedIn(true);
