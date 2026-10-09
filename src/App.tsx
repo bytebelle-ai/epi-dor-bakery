@@ -349,13 +349,41 @@ function Cart({ items, close, change, remove, checkout }: { items: CartItem[]; c
 function Checkout({ items, done }: { items: CartItem[]; done: () => void }) {
   const total = items.reduce((s, i) => s + i.variant.price * i.quantity, 0);
   const [type, setType] = useState("Pickup");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const submit = async (e: { preventDefault: () => void; currentTarget: HTMLFormElement }) => {
+    e.preventDefault();
+    if (busy) return;
+    const fd = new FormData(e.currentTarget);
+    const g = (k: string) => String(fd.get(k) ?? "").trim();
+    setBusy(true);
+    setErr("");
+    const isDelivery = type === "Delivery";
+    const address = isDelivery ? [g("address"), g("city"), g("pincode")].filter(Boolean).join(", ") : null;
+    const { data: order, error: oErr } = await supabase.from("orders").insert({
+      fulfillment: isDelivery ? "delivery" : "pickup",
+      customer_name: g("fullname"), phone: g("phone"), email: g("email"),
+      address, notes: isDelivery ? (g("instructions") || null) : null,
+      scheduled_date: g("date"), scheduled_time: g("time"),
+      subtotal: total, total,
+    }).select("id").single();
+    if (oErr || !order) { console.error(oErr); setErr("Could not place your order. Please try again."); setBusy(false); return; }
+    const { error: iErr } = await supabase.from("order_items").insert(items.map((i) => ({
+      order_id: order.id, product_id: i.id, product_name: i.name,
+      variant_label: i.variant.label || null, unit_price: i.variant.price,
+      quantity: i.quantity, note: i.note || null,
+    })));
+    if (iErr) { console.error(iErr); setErr("Could not place your order. Please try again."); setBusy(false); return; }
+    setBusy(false);
+    done();
+  };
   return <main className="page checkout section">
-    <div className="checkout-form"><p className="eyebrow">SECURE CHECKOUT</p><h1>Complete your order</h1><form onSubmit={(e) => { e.preventDefault(); done(); }}>
-      <h3>Customer details</h3><div className="two-col"><label className="field">Full name<input required /></label><label className="field">Phone<input required type="tel" /></label></div><label className="field">Email<input required type="email" /></label>
+    <div className="checkout-form"><p className="eyebrow">SECURE CHECKOUT</p><h1>Complete your order</h1><form onSubmit={submit}>
+      <h3>Customer details</h3><div className="two-col"><label className="field">Full name<input required name="fullname" /></label><label className="field">Phone<input required type="tel" name="phone" /></label></div><label className="field">Email<input required type="email" name="email" /></label>
       <h3>Order type</h3><div className="diet-row">{["Pickup", "Delivery"].map((t) => <button type="button" key={t} className={type === t ? "selected" : ""} onClick={() => setType(t)}>{t}</button>)}</div>
-      {type === "Delivery" && <><label className="field">Address<input required /></label><div className="two-col"><label className="field">City<input required defaultValue="Mumbai" /></label><label className="field">Pincode<input required inputMode="numeric" /></label></div><label className="field">Delivery instructions<textarea /></label></>}
-      <div className="two-col"><label className="field">Date<input required type="date" /></label><label className="field">Time<input required type="time" /></label></div>
-      <div className="payment-note"><strong>Payment</strong><p>Payment integration requires the bakery owner’s connected payment provider. No card credentials are stored by this website.</p></div>
+      {type === "Delivery" && <><label className="field">Address<input required name="address" /></label><div className="two-col"><label className="field">City<input required name="city" defaultValue="Mumbai" /></label><label className="field">Pincode<input required name="pincode" inputMode="numeric" /></label></div><label className="field">Delivery instructions<textarea name="instructions" /></label></>}
+      <div className="two-col"><label className="field">Date<input required type="date" name="date" /></label><label className="field">Time<input required type="time" name="time" /></label></div>
+      {err && <p role="alert" style={{ color: "#b3261e" }}>{err}</p>}<div className="payment-note"><strong>Payment</strong><p>Payment integration requires the bakery owner’s connected payment provider. No card credentials are stored by this website.</p></div>
       <Button type="submit">Place Order — {money(total)}</Button>
     </form></div>
     <aside className="order-summary"><p className="eyebrow">ORDER SUMMARY</p>{items.map((i, n) => <div className="summary-item" key={n}><img src={i.image} alt="" /><span>{i.quantity} × {i.name}<small>{i.variant.label}</small></span><b>{money(i.variant.price * i.quantity)}</b></div>)}<div className="summary-total"><span>Total</span><strong>{money(total)}</strong></div></aside>
