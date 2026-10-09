@@ -346,7 +346,8 @@ function Cart({ items, close, change, remove, checkout }: { items: CartItem[]; c
   </aside></div>;
 }
 
-function Checkout({ items, done }: { items: CartItem[]; done: () => void }) {
+type PlacedOrder = { orderNo: number; name: string; phone: string; type: string; date: string; time: string; address: string | null; total: number; items: { name: string; label: string; qty: number; price: number }[] };
+function Checkout({ items, done }: { items: CartItem[]; done: (o: PlacedOrder) => void }) {
   const total = items.reduce((s, i) => s + i.variant.price * i.quantity, 0);
   const [type, setType] = useState("Pickup");
   const [busy, setBusy] = useState(false);
@@ -366,7 +367,7 @@ function Checkout({ items, done }: { items: CartItem[]; done: () => void }) {
       address, notes: isDelivery ? (g("instructions") || null) : null,
       scheduled_date: g("date"), scheduled_time: g("time"),
       subtotal: total, total,
-    }).select("id").single();
+    }).select("id, order_no").single();
     if (oErr || !order) { console.error(oErr); setErr("Could not place your order. Please try again."); setBusy(false); return; }
     const { error: iErr } = await supabase.from("order_items").insert(items.map((i) => ({
       order_id: order.id, product_id: i.id, product_name: i.name,
@@ -375,7 +376,7 @@ function Checkout({ items, done }: { items: CartItem[]; done: () => void }) {
     })));
     if (iErr) { console.error(iErr); setErr("Could not place your order. Please try again."); setBusy(false); return; }
     setBusy(false);
-    done();
+    done({ orderNo: order.order_no, name: g("fullname"), phone: g("phone"), type, date: g("date"), time: g("time"), address, total, items: items.map((i) => ({ name: i.name, label: i.variant.label, qty: i.quantity, price: i.variant.price })) });
   };
   return <main className="page checkout section">
     <div className="checkout-form"><p className="eyebrow">SECURE CHECKOUT</p><h1>Complete your order</h1><form onSubmit={submit}>
@@ -383,15 +384,23 @@ function Checkout({ items, done }: { items: CartItem[]; done: () => void }) {
       <h3>Order type</h3><div className="diet-row">{["Pickup", "Delivery"].map((t) => <button type="button" key={t} className={type === t ? "selected" : ""} onClick={() => setType(t)}>{t}</button>)}</div>
       {type === "Delivery" && <><label className="field">Address<input required name="address" /></label><div className="two-col"><label className="field">City<input required name="city" defaultValue="Mumbai" /></label><label className="field">Pincode<input required name="pincode" inputMode="numeric" /></label></div><label className="field">Delivery instructions<textarea name="instructions" /></label></>}
       <div className="two-col"><label className="field">Date<input required type="date" name="date" /></label><label className="field">Time<input required type="time" name="time" /></label></div>
-      {err && <p role="alert" style={{ color: "#b3261e" }}>{err}</p>}<div className="payment-note"><strong>Payment</strong><p>Payment integration requires the bakery owner’s connected payment provider. No card credentials are stored by this website.</p></div>
+      {err && <p role="alert" style={{ color: "#b3261e" }}>{err}</p>}<div className="payment-note"><strong>Payment</strong><p>Pay by Cash on Delivery or at Pickup. No online payment is taken on this website.</p></div>
       <Button type="submit">Place Order — {money(total)}</Button>
     </form></div>
     <aside className="order-summary"><p className="eyebrow">ORDER SUMMARY</p>{items.map((i, n) => <div className="summary-item" key={n}><img src={i.image} alt="" /><span>{i.quantity} × {i.name}<small>{i.variant.label}</small></span><b>{money(i.variant.price * i.quantity)}</b></div>)}<div className="summary-total"><span>Total</span><strong>{money(total)}</strong></div></aside>
   </main>;
 }
 
-function Confirmation({ navigate }: { navigate: (p: string) => void }) {
-  return <main className="page confirmation section"><div className="confirm-mark">✓</div><p className="eyebrow">ORDER RECEIVED</p><h1>Thank you for your order.</h1><p>Your order request has been received. Final availability, order number, timing and payment will be confirmed by the bakery.</p><div className="status-line">{["Order Placed", "Confirmed", "Preparing", "Ready", "Completed"].map((s, i) => <div className={i === 0 ? "current" : ""} key={s}><i>{i + 1}</i><span>{s}</span></div>)}</div><Button onClick={() => navigate("home")}>Return Home</Button></main>;
+function Confirmation({ navigate, order }: { navigate: (p: string) => void; order: PlacedOrder | null }) {
+  const wa = order ? "https://wa.me/918369301551?text=" + encodeURIComponent([
+    "Hi, I placed order #" + order.orderNo + " on the website.",
+    ...order.items.map((i) => i.qty + " x " + i.name + (i.label ? " (" + i.label + ")" : "") + " - \u20B9" + i.price * i.qty),
+    "Total: \u20B9" + order.total,
+    order.type + " on " + order.date + " at " + order.time,
+    order.address ? "Address: " + order.address : "",
+    "Name: " + order.name + ", Phone: " + order.phone,
+  ].filter(Boolean).join("\n")) : "";
+  return <main className="page confirmation section"><div className="confirm-mark">✓</div><p className="eyebrow">ORDER RECEIVED</p><h1>Thank you for your order.</h1>{order && <p><strong>Order #{order.orderNo}</strong></p>}<p>Your order has been received. The bakery will confirm availability and timing. Pay by Cash on Delivery or at Pickup.</p>{order && <a className="btn" href={wa} target="_blank" rel="noopener noreferrer">Send order details on WhatsApp</a>}<div className="status-line">{["Order Placed", "Confirmed", "Preparing", "Ready", "Completed"].map((s, i) => <div className={i === 0 ? "current" : ""} key={s}><i>{i + 1}</i><span>{s}</span></div>)}</div><Button onClick={() => navigate("home")}>Return Home</Button></main>;
 }
 
 function Footer({ navigate }: { navigate: (p: string) => void }) {
@@ -407,6 +416,7 @@ export default function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [demoLoggedIn, setDemoLoggedIn] = useState(false);
+  const [lastOrder, setLastOrder] = useState<PlacedOrder | null>(null);
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setDemoLoggedIn(!!data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => setDemoLoggedIn(!!session));
@@ -460,7 +470,7 @@ export default function App() {
     setCartOpen(false);
     navigate("checkout");
   };
-  const complete = () => { setCart([]); navigate("confirmation"); };
+  const complete = (o: PlacedOrder) => { setLastOrder(o); setCart([]); navigate("confirmation"); };
   const customerAuthRoute = ["/login", "/signup", "/forgot-password", "/reset-password"].includes(path);
   const accountRoute = path.startsWith("/account");
   const adminRoute = path.startsWith("/admin");
@@ -515,7 +525,7 @@ export default function App() {
     {page === "about" && <About />}
     {page === "contact" && <Contact />}
     {page === "checkout" && (demoLoggedIn ? <Checkout items={cart} done={complete} /> : <CustomerLogin navigate={navigate} onDemoLogin={() => { setDemoLoggedIn(true); navigate("/checkout"); }} />)}
-    {page === "confirmation" && <Confirmation navigate={navigate} />}
+    {page === "confirmation" && <Confirmation navigate={navigate} order={lastOrder} />}
     {path === "/login" && <CustomerLogin navigate={navigate} onDemoLogin={completeCustomerAuthentication} />}
     {path === "/signup" && <CustomerSignup navigate={navigate} onDemoLogin={completeCustomerAuthentication} />}
     {path === "/forgot-password" && <PasswordFlow navigate={navigate} />}
