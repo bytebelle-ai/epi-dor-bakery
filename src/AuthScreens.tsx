@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 type Navigate = (path: string) => void;
 
@@ -306,26 +306,68 @@ function Overview({ navigate }: { navigate: Navigate }) {
   </>;
 }
 
+const orderStatusLabel = (s: string) => (s ?? "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+const orderDate = (d: string) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
 function OrderList({ navigate, compact = false }: { navigate: Navigate; compact?: boolean }) {
-  return <div className="order-list">{demoOrders.slice(0, compact ? 1 : 2).map((order, index) => <article key={order.id}>
-    <div><span>ORDER NUMBER</span><strong>{order.id}</strong></div><div><span>ORDER DATE</span><strong>{order.date}</strong></div><div className="order-products"><span>PRODUCTS</span><strong>{order.products}</strong></div><div><span>TOTAL</span><strong>{order.total}</strong></div><i className={`status ${order.status.toLowerCase()}`}>{order.status}</i>
-    <div className="order-actions"><button onClick={() => navigate(`/account/orders/${index + 1}`)}>View Order</button><button onClick={() => navigate(`/account/orders/${index + 1}`)}>Track Order</button><button>Reorder</button></div>
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    supabase
+      .from("orders")
+      .select("id,order_no,status,total,created_at,order_items(product_name,variant_label,quantity)")
+      .order("created_at", { ascending: false })
+      .then(({ data, error: err }) => {
+        if (err) setError(err.message); else setOrders(data ?? []);
+        setLoading(false);
+      });
+  }, []);
+  if (loading) return <p>Loading your orders…</p>;
+  if (error) return <div className="form-state error">{error}</div>;
+  if (orders.length === 0) return <p>You haven’t placed any orders yet.</p>;
+  return <div className="order-list">{orders.slice(0, compact ? 3 : orders.length).map((order) => <article key={order.id}>
+    <div><span>ORDER NUMBER</span><strong>#{order.order_no}</strong></div><div><span>ORDER DATE</span><strong>{orderDate(order.created_at)}</strong></div><div className="order-products"><span>PRODUCTS</span><strong>{(order.order_items ?? []).map((i: any) => `${i.product_name} × ${i.quantity}`).join(", ")}</strong></div><div><span>TOTAL</span><strong>₹{order.total}</strong></div><i className={`status ${String(order.status).replace(/_/g, "-")}`}>{orderStatusLabel(order.status)}</i>
+    <div className="order-actions"><button onClick={() => navigate(`/account/orders/${order.id}`)}>View Order</button><button onClick={() => navigate(`/account/orders/${order.id}`)}>Track Order</button></div>
   </article>)}</div>;
 }
 
 function OrderDetail({ path, navigate, logout }: { path: string; navigate: Navigate; logout: () => void }) {
-  const order = demoOrders[Number(path.split("/").pop()) - 1] || demoOrders[0];
+  const id = path.split("/").filter(Boolean).pop() ?? "";
+  const [order, setOrder] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    supabase
+      .from("orders")
+      .select("*, order_items(*)")
+      .eq("id", id)
+      .maybeSingle()
+      .then(({ data, error: err }) => {
+        if (err) setError(err.message);
+        else if (!data) setError("Order not found.");
+        else setOrder(data);
+        setLoading(false);
+      });
+  }, [id]);
+  const steps = ["Order Placed", "Confirmed", "Preparing", "Ready", "Completed"];
+  const stepIndex: Record<string, number> = { pending: 0, confirmed: 1, preparing: 2, ready: 3, out_for_delivery: 3, completed: 4 };
+  const current = order ? (stepIndex[order.status] ?? 0) : 0;
+  const items: any[] = order?.order_items ?? [];
   return <AccountShell path="/account/orders" navigate={navigate} logout={logout}>
     <button className="back-auth" onClick={() => navigate("/account/orders")}>← Back to orders</button>
-    <PanelTitle title={order.id} copy={`${order.date} · ${order.status}`} />
-    <div className="order-detail-card">
-      <div className="detail-product"><div className="sample-thumb" /><span><strong>{order.products}</strong><small>Product details from order</small></span><b>{order.total}</b></div>
-      <div className="detail-meta"><div><span>FULFILMENT</span><strong>Details pending connection</strong></div><div><span>CONTACT</span><strong>Customer profile details</strong></div><div><span>TOTAL</span><strong>{order.total}</strong></div></div>
-    </div>
-    <div className="order-track"><h3>Order status</h3>{["Order Placed", "Confirmed", "Preparing", "Ready", "Completed"].map((step, index) => <div className={index < 3 ? "complete" : ""} key={step}><i>{index < 3 ? "✓" : index + 1}</i><span>{step}</span></div>)}</div>
+    {loading ? <p>Loading order…</p> : error || !order ? <div className="form-state error">{error || "Order not found."}</div> : <>
+      <PanelTitle title={`Order #${order.order_no}`} copy={`${orderDate(order.created_at)} · ${orderStatusLabel(order.status)}`} />
+      <div className="order-detail-card">
+        {items.map((i) => <div className="detail-product" key={i.id}><div className="sample-thumb" /><span><strong>{i.product_name}</strong><small>{[i.variant_label, `Quantity ${i.quantity}`].filter(Boolean).join(" · ")}</small></span><b>₹{Number(i.unit_price) * Number(i.quantity)}</b></div>)}
+        <div className="detail-meta"><div><span>FULFILMENT</span><strong>{orderStatusLabel(order.fulfillment)}{order.fulfillment === "delivery" && order.address ? ` · ${order.address}` : ""}</strong></div><div><span>CONTACT</span><strong>{[order.customer_name, order.phone].filter(Boolean).join(" · ")}</strong></div><div><span>TOTAL</span><strong>₹{order.total}</strong></div></div>
+      </div>
+      {order.status === "cancelled"
+        ? <div className="order-track"><h3>Order status</h3><p>This order was cancelled.</p></div>
+        : <div className="order-track"><h3>Order status</h3>{steps.map((step, index) => <div className={index <= current ? "complete" : ""} key={step}><i>{index <= current ? "✓" : index + 1}</i><span>{step}</span></div>)}</div>}
+    </>}
   </AccountShell>;
 }
-
 function Profile() {
   const [saved, setSaved] = useState(false);
   return <><PanelTitle title="Profile Information" copy="Keep your contact details up to date." /><form className="profile-form" onSubmit={(e) => { e.preventDefault(); setSaved(true); }}>
