@@ -88,11 +88,135 @@ function AdminDashboard({ navigate }: { navigate: Navigate }) {
 }
 
 function AdminOrders({ navigate }: { navigate: Navigate }) {
-  return <div className="admin-page"><PageHead eyebrow="ORDER MANAGEMENT" title="Orders" copy="Review fulfilment and update order progress." /><div className="admin-filters"><input placeholder="Search order or customer" /><select><option>All statuses</option><option>New</option><option>Confirmed</option><option>Preparing</option><option>Ready</option><option>Completed</option><option>Cancelled</option></select></div><div className="admin-table-card"><table><thead><tr><th>Order</th><th>Customer</th><th>Products</th><th>Total</th><th>Status</th><th /></tr></thead><tbody><tr><td>Preview 001</td><td>Sample customer</td><td>Classic Chocolate Cake</td><td>₹799</td><td><span className="table-status">Preparing</span></td><td><button onClick={() => navigate("/admin/orders/1")}>View →</button></td></tr></tbody></table></div></div>;
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState("all");
+  useEffect(() => {
+    supabase
+      .from("orders")
+      .select("id,order_no,customer_name,status,fulfillment,total,phone,created_at,order_items(product_name,quantity)")
+      .order("created_at", { ascending: false })
+      .then(({ data, error: err }) => {
+        if (err) setError(err.message); else setOrders(data ?? []);
+        setLoading(false);
+      });
+  }, []);
+  const label = (s: string) => s.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+  const shown = orders.filter((o) => {
+    const text = `#${o.order_no} ${o.order_no} ${o.customer_name ?? ""} ${o.phone ?? ""} ${(o.order_items ?? []).map((i: any) => i.product_name).join(" ")}`.toLowerCase();
+    return (status === "all" || o.status === status) && (/^#?\d{1,5}$/.test(q.trim()) ? String(o.order_no) === q.trim().replace("#", "") : text.includes(q.trim().toLowerCase()));
+  });
+  return (
+    <div className="admin-page">
+      <PageHead eyebrow="ORDER MANAGEMENT" title="Orders" copy="Review fulfilment and update order progress." />
+      <div className="admin-filters">
+        <input placeholder="Search order or customer" value={q} onChange={(e) => setQ(e.target.value)} />
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="all">All statuses</option>
+          {["pending", "confirmed", "preparing", "ready", "out_for_delivery", "completed", "cancelled"].map((s) => <option key={s} value={s}>{label(s)}</option>)}
+        </select>
+      </div>
+      {error && <div className="form-state error">{error}</div>}
+      <div className="admin-table-card">
+        {loading ? <p>Loading orders…</p> : shown.length === 0 ? <EmptyAdmin text="No orders found" /> : (
+          <table>
+            <thead><tr><th>Order</th><th>Customer</th><th>Products</th><th>Total</th><th>Status</th><th /></tr></thead>
+            <tbody>
+              {shown.map((o) => (
+                <tr key={o.id}>
+                  <td>#{o.order_no}<br /><small>{new Date(o.created_at).toLocaleString("en-IN")}</small></td>
+                  <td>{o.customer_name}<br /><small>{label(o.fulfillment ?? "")}</small></td>
+                  <td>{(o.order_items ?? []).map((i: any) => `${i.product_name} ×${i.quantity}`).join(", ")}</td>
+                  <td>₹{o.total}</td>
+                  <td><span className="table-status">{label(o.status)}</span></td>
+                  <td><button onClick={() => navigate(`/admin/orders/${o.id}`)}>View →</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
 }
-
 function AdminOrderDetail({ navigate }: { navigate: Navigate }) {
-  return <div className="admin-page"><button className="admin-back" onClick={() => navigate("/admin/orders")}>← Back to orders</button><PageHead eyebrow="ORDER PREVIEW" title="Preview 001" copy="Sample order detail for interface review." action={<select className="status-select" defaultValue="Preparing"><option>New</option><option>Confirmed</option><option>Preparing</option><option>Ready</option><option>Completed</option><option>Cancelled</option></select>} /><div className="admin-detail-grid"><section className="admin-table-card"><h2>Products</h2><div className="admin-line-item"><div className="sample-thumb" /><span><strong>Classic Chocolate Cake</strong><small>500 g · Quantity 1</small></span><b>₹799</b></div><div className="admin-total"><span>Total</span><strong>₹799</strong></div></section><aside className="admin-info-card"><h2>Customer</h2><p>Sample customer</p><p>Contact details pending connection</p><h2>Fulfilment</h2><p>Pickup or delivery details</p><h2>Customization</h2><p>No customization shown in this sample.</p></aside></div></div>;
+  const id = window.location.pathname.split("/").filter(Boolean).pop() ?? "";
+  const [order, setOrder] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const statuses = ["pending", "confirmed", "preparing", "ready", "out_for_delivery", "completed", "cancelled"];
+  const label = (s: string) => (s ?? "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+  useEffect(() => {
+    supabase
+      .from("orders")
+      .select("*, order_items(*)")
+      .eq("id", id)
+      .maybeSingle()
+      .then(({ data, error: err }) => {
+        if (err) setError(err.message);
+        else if (!data) setError("Order not found.");
+        else setOrder(data);
+        setLoading(false);
+      });
+  }, [id]);
+  async function changeStatus(next: string) {
+    setBusy(true); setMsg(""); setError("");
+    const { data, error: err } = await supabase.from("orders").update({ status: next }).eq("id", id).select("id");
+    setBusy(false);
+    if (err) { setError(err.message); return; }
+    if (!data || data.length === 0) { setError("Status update nahi hua (permission check karo)."); return; }
+    setOrder({ ...order, status: next });
+    setMsg(`Status updated: ${label(next)}`);
+  }
+  if (loading) return <div className="admin-page"><p>Loading order…</p></div>;
+  if (!order) return <div className="admin-page"><button className="admin-back" onClick={() => navigate("/admin/orders")}>← Back to orders</button><div className="form-state error">{error}</div></div>;
+  const items: any[] = order.order_items ?? [];
+  return (
+    <div className="admin-page">
+      <button className="admin-back" onClick={() => navigate("/admin/orders")}>← Back to orders</button>
+      <PageHead
+        eyebrow="ORDER DETAIL"
+        title={`Order #${order.order_no}`}
+        copy={`Placed ${new Date(order.created_at).toLocaleString("en-IN")}`}
+        action={<select className="status-select" value={order.status} disabled={busy} onChange={(e) => changeStatus(e.target.value)}>{statuses.map((s) => <option key={s} value={s}>{label(s)}</option>)}</select>}
+      />
+      {msg && <div className="form-state success">{msg}</div>}
+      {error && <div className="form-state error">{error}</div>}
+      <div className="admin-detail-grid">
+        <section className="admin-table-card">
+          <h2>Products</h2>
+          {items.map((i) => (
+            <div className="admin-line-item" key={i.id}>
+              <div className="sample-thumb" />
+              <span>
+                <strong>{i.product_name}</strong>
+                <small>{[i.variant_label, `Quantity ${i.quantity}`].filter(Boolean).join(" · ")}</small>
+                {i.note && <small>Note: {i.note}</small>}
+              </span>
+              <b>₹{Number(i.unit_price) * Number(i.quantity)}</b>
+            </div>
+          ))}
+          <div className="admin-total"><span>Total</span><strong>₹{order.total}</strong></div>
+        </section>
+        <aside className="admin-info-card">
+          <h2>Customer</h2>
+          <p>{order.customer_name}</p>
+          <p>{order.phone}</p>
+          {order.email && <p>{order.email}</p>}
+          <h2>Fulfilment</h2>
+          <p>{label(order.fulfillment)} · {String(order.payment_method).toUpperCase()}</p>
+          {order.fulfillment === "delivery" && order.address && <p>{order.address}</p>}
+          {(order.scheduled_date || order.scheduled_time) && <p>{[order.scheduled_date, order.scheduled_time].filter(Boolean).join(" · ")}</p>}
+          <h2>Notes</h2>
+          <p>{order.notes || "No notes."}</p>
+        </aside>
+      </div>
+    </div>
+  );
 }
 
 function AdminProducts({ navigate }: { navigate: Navigate }) {
