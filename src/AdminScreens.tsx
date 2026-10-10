@@ -83,8 +83,64 @@ export function AdminApp({ path, navigate, logout }: { path: string; navigate: N
 }
 
 function AdminDashboard({ navigate }: { navigate: Navigate }) {
-  const stats = [["Today’s Orders", "—"], ["Pending Orders", "—"], ["Total Orders", "—"], ["Revenue", "—"], ["Products", "36"], ["Unavailable Products", "—"]];
-  return <div className="admin-page"><PageHead eyebrow="OVERVIEW" title="Good morning, Admin" copy="Here’s what is happening at Épi d’Or today." /><div className="admin-notice">Live order and revenue data will appear after the backend is connected.</div><div className="stat-grid">{stats.map(([label, value], i) => <article key={label}><span>0{i + 1}</span><strong>{value}</strong><p>{label}</p></article>)}</div><div className="admin-split"><section className="admin-table-card"><div className="table-title"><h2>Recent orders</h2><button onClick={() => navigate("/admin/orders")}>View all</button></div><EmptyAdmin text="No live orders connected" /></section><section className="quick-actions"><h2>Quick actions</h2><button onClick={() => navigate("/admin/products/add")}>Add a product <b>+</b></button><button onClick={() => navigate("/admin/orders")}>Review orders <b>→</b></button><button onClick={() => navigate("/admin/settings")}>Bakery settings <b>→</b></button></section></div></div>;
+  const [orders, setOrders] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    Promise.all([
+      supabase.from("orders").select("id,order_no,customer_name,status,total,created_at").order("created_at", { ascending: false }),
+      supabase.from("products").select("id,active"),
+    ]).then(([o, p]) => {
+      if (o.error) setError(o.error.message); else setOrders(o.data ?? []);
+      if (p.error) setError(p.error.message); else setProducts(p.data ?? []);
+      setLoading(false);
+    });
+  }, []);
+  const label = (s: string) => (s ?? "").replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+  const todayStr = new Date().toDateString();
+  const todayCount = orders.filter((o) => new Date(o.created_at).toDateString() === todayStr).length;
+  const pendingCount = orders.filter((o) => o.status === "pending").length;
+  const revenue = orders.filter((o) => o.status !== "cancelled").reduce((sum, o) => sum + Number(o.total || 0), 0);
+  const unavailable = products.filter((p) => p.active === false).length;
+  const v = (n: string | number) => (loading ? "…" : String(n));
+  const stats = [
+    ["Today’s Orders", v(todayCount)],
+    ["Pending Orders", v(pendingCount)],
+    ["Total Orders", v(orders.length)],
+    ["Revenue", v("₹" + revenue.toLocaleString("en-IN"))],
+    ["Products", v(products.length)],
+    ["Unavailable Products", v(unavailable)],
+  ];
+  const recent = orders.slice(0, 5);
+  return (
+    <div className="admin-page">
+      <PageHead eyebrow="OVERVIEW" title="Good morning, Admin" copy="Here’s what is happening at Épi d’Or today." />
+      {error && <div className="form-state error">{error}</div>}
+      <div className="stat-grid">{stats.map(([label, value], i) => <article key={label}><span>0{i + 1}</span><strong>{value}</strong><p>{label}</p></article>)}</div>
+      <div className="admin-split">
+        <section className="admin-table-card">
+          <div className="table-title"><h2>Recent orders</h2><button onClick={() => navigate("/admin/orders")}>View all</button></div>
+          {loading ? <p>Loading…</p> : recent.length === 0 ? <p>No orders yet.</p> : (
+            <table>
+              <tbody>
+                {recent.map((o) => (
+                  <tr key={o.id}>
+                    <td>#{o.order_no}</td>
+                    <td>{o.customer_name}</td>
+                    <td>₹{o.total}</td>
+                    <td><span className="table-status">{label(o.status)}</span></td>
+                    <td><button onClick={() => navigate(`/admin/orders/${o.id}`)}>View →</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+        <section className="quick-actions"><h2>Quick actions</h2><button onClick={() => navigate("/admin/products/add")}>Add a product <b>+</b></button><button onClick={() => navigate("/admin/orders")}>Review orders <b>→</b></button><button onClick={() => navigate("/admin/settings")}>Bakery settings <b>→</b></button></section>
+      </div>
+    </div>
+  );
 }
 
 function AdminOrders({ navigate }: { navigate: Navigate }) {
