@@ -369,16 +369,41 @@ function OrderDetail({ path, navigate, logout }: { path: string; navigate: Navig
   </AccountShell>;
 }
 function Profile() {
-  const [saved, setSaved] = useState(false);
-  return <><PanelTitle title="Profile Information" copy="Keep your contact details up to date." /><form className="profile-form" onSubmit={(e) => { e.preventDefault(); setSaved(true); }}>
-    {saved && <div className="form-state success">Profile preview updated.</div>}
-    <label className="field">Name<input defaultValue="Guest Preview" /></label>
-    <label className="field">Email<input type="email" placeholder="Connect account to populate" /></label>
-    <label className="field">Phone<input type="tel" placeholder="Connect account to populate" /></label>
-    <button className="btn" type="submit">Save Changes</button>
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const u = data.user;
+      if (u) {
+        setEmail(u.email ?? "");
+        setName(u.user_metadata?.full_name ?? u.user_metadata?.name ?? "");
+        setPhone(u.user_metadata?.phone ?? "");
+      }
+      setLoading(false);
+    });
+  }, []);
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true); setMsg(""); setError("");
+    const { error: err } = await supabase.auth.updateUser({ data: { full_name: name.trim(), phone: phone.trim() } });
+    setBusy(false);
+    if (err) setError(err.message); else setMsg("Profile saved.");
+  }
+  if (loading) return <p>Loading profile…</p>;
+  return <><PanelTitle title="Profile Information" copy="Keep your contact details up to date." /><form className="profile-form" onSubmit={save}>
+    {msg && <div className="form-state success">{msg}</div>}
+    {error && <div className="form-state error">{error}</div>}
+    <label className="field">Name<input value={name} onChange={(e) => setName(e.target.value)} /></label>
+    <label className="field">Email<input type="email" value={email} readOnly /></label>
+    <label className="field">Phone<input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></label>
+    <button className="btn" type="submit" disabled={busy}>{busy ? "Saving…" : "Save Changes"}</button>
   </form></>;
 }
-
 function Addresses() {
   const [showForm, setShowForm] = useState(false);
   return <><div className="panel-title action-title"><div><p className="eyebrow">ACCOUNT</p><h2>Saved Addresses</h2><p>Add and manage your delivery locations.</p></div><button className="btn" onClick={() => setShowForm(!showForm)}>Add Address</button></div>
