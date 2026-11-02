@@ -203,9 +203,28 @@ export function CustomerSignup({ navigate, onDemoLogin }: { navigate: Navigate; 
 
 export function PasswordFlow({ reset = false, admin = false, navigate }: { reset?: boolean; admin?: boolean; navigate: Navigate }) {
   const [sent, setSent] = useState(false);
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSent(true);
+    setError("");
+    const form = new FormData(event.currentTarget);
+    setBusy(true);
+    if (!reset) {
+      const email = String(form.get("email") || "").trim();
+      const { error: err } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+      setBusy(false);
+      if (err) { setError(err.message); return; }
+      setSent(true);
+    } else {
+      const p1 = String(form.get("password") || "");
+      const p2 = String(form.get("confirm") || "");
+      if (p1 !== p2) { setBusy(false); setError("Passwords do not match."); return; }
+      const { error: err } = await supabase.auth.updateUser({ password: p1 });
+      setBusy(false);
+      if (err) { setError(err.message); return; }
+      setSent(true);
+    }
   };
   const loginPath = admin ? "/admin/login" : "/login";
   return (
@@ -214,25 +233,25 @@ export function PasswordFlow({ reset = false, admin = false, navigate }: { reset
       title={reset ? "Create New Password" : "Reset Your Password"}
       copy={reset ? "Choose a new password for your Épi d’Or account." : "Enter your email and we’ll prepare a password reset link."}
     >
-      <div className="prototype-note">Frontend preview only — no email is sent and no password is stored.</div>
+      {error && <p role="alert" style={{ color: "#b3261e", margin: "0 0 12px" }}>{error}</p>}
       {sent ? (
         <div className="recovery-success">
           <div className="success-seal">✓</div>
-          <h2>{reset ? "Password Changed" : "Reset Link Prepared"}</h2>
-          <p>{reset ? "Your password change is represented in this preview." : "The password reset sent state is ready for backend integration."}</p>
+          <h2>{reset ? "Password Changed" : "Check Your Email"}</h2>
+          <p>{reset ? "Your password has been updated. You can log in with it now." : "If this email has an account, a reset link has been sent. Please check your inbox."}</p>
           <button className="btn" onClick={() => navigate(loginPath)}>Return to Login</button>
         </div>
       ) : (
         <form className="auth-form" onSubmit={submit}>
           {!reset ? (
-            <label className="field">Email Address<input required type="email" autoComplete="email" /></label>
+            <label className="field">Email Address<input name="email" required type="email" autoComplete="email" /></label>
           ) : (
             <>
-              <label className="field">New Password<input required type="password" autoComplete="new-password" minLength={8} /></label>
-              <label className="field">Confirm New Password<input required type="password" autoComplete="new-password" minLength={8} /></label>
+              <label className="field">New Password<input name="password" required type="password" autoComplete="new-password" minLength={8} /></label>
+              <label className="field">Confirm New Password<input name="confirm" required type="password" autoComplete="new-password" minLength={8} /></label>
             </>
           )}
-          <button className="btn" type="submit">{reset ? "Change Password" : "Send Reset Link"}</button>
+          <button className="btn" type="submit" disabled={busy}>{busy ? "Please wait..." : reset ? "Change Password" : "Send Reset Link"}</button>
         </form>
       )}
       {!sent && <button className="back-auth" onClick={() => navigate(loginPath)}>← Back to login</button>}
