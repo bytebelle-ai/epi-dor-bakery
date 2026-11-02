@@ -405,13 +405,85 @@ function Profile() {
   </form></>;
 }
 function Addresses() {
+  const [list, setList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [label, setLabel] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("Mumbai");
+  const [pincode, setPincode] = useState("");
+  const [isDefault, setIsDefault] = useState(false);
+
+  async function load() {
+    const { data, error: err } = await supabase
+      .from("addresses")
+      .select("*")
+      .order("is_default", { ascending: false })
+      .order("created_at", { ascending: false });
+    if (err) setError(err.message); else setList(data ?? []);
+    setLoading(false);
+  }
+  useEffect(() => { load(); }, []);
+
+  async function clearDefaults() {
+    const { data: u } = await supabase.auth.getUser();
+    if (u.user) await supabase.from("addresses").update({ is_default: false }).eq("user_id", u.user.id);
+  }
+
+  async function add(e: FormEvent) {
+    e.preventDefault();
+    setBusy(true); setError("");
+    if (isDefault) await clearDefaults();
+    const { error: err } = await supabase.from("addresses").insert({
+      label: label.trim(), address: address.trim(), city: city.trim(), pincode: pincode.trim(),
+      is_default: isDefault || list.length === 0,
+    });
+    setBusy(false);
+    if (err) { setError(err.message); return; }
+    setLabel(""); setAddress(""); setCity("Mumbai"); setPincode(""); setIsDefault(false); setShowForm(false);
+    load();
+  }
+
+  async function makeDefault(id: string) {
+    setError("");
+    await clearDefaults();
+    const { error: err } = await supabase.from("addresses").update({ is_default: true }).eq("id", id);
+    if (err) setError(err.message);
+    load();
+  }
+
+  async function remove(id: string) {
+    if (!window.confirm("Delete this address?")) return;
+    setError("");
+    const { error: err } = await supabase.from("addresses").delete().eq("id", id);
+    if (err) setError(err.message);
+    load();
+  }
+
   return <><div className="panel-title action-title"><div><p className="eyebrow">ACCOUNT</p><h2>Saved Addresses</h2><p>Add and manage your delivery locations.</p></div><button className="btn" onClick={() => setShowForm(!showForm)}>Add Address</button></div>
-    {showForm && <form className="address-form" onSubmit={(e) => { e.preventDefault(); setShowForm(false); }}><label className="field">Address label<input required placeholder="Home, work…" /></label><label className="field">Address<input required /></label><label className="field">City<input required defaultValue="Mumbai" /></label><label className="field">Pincode<input required inputMode="numeric" /></label><label className="check-line"><input type="checkbox" /> Set as default address</label><button className="btn" type="submit">Save Address</button></form>}
-    <div className="empty-address"><span>⌂</span><h3>No saved addresses yet</h3><p>Your saved delivery addresses will appear here.</p></div>
+    {error && <div className="form-state error">{error}</div>}
+    {showForm && <form className="address-form" onSubmit={add}>
+      <label className="field">Address label<input required placeholder="Home, work…" value={label} onChange={(e) => setLabel(e.target.value)} /></label>
+      <label className="field">Address<input required value={address} onChange={(e) => setAddress(e.target.value)} /></label>
+      <label className="field">City<input required value={city} onChange={(e) => setCity(e.target.value)} /></label>
+      <label className="field">Pincode<input required inputMode="numeric" value={pincode} onChange={(e) => setPincode(e.target.value)} /></label>
+      <label className="check-line"><input type="checkbox" checked={isDefault} onChange={(e) => setIsDefault(e.target.checked)} /> Set as default address</label>
+      <button className="btn" type="submit" disabled={busy}>{busy ? "Saving…" : "Save Address"}</button>
+    </form>}
+    {loading ? <p>Loading addresses…</p> : list.length === 0
+      ? <div className="empty-address"><span>⌂</span><h3>No saved addresses yet</h3><p>Your saved delivery addresses will appear here.</p></div>
+      : <div className="order-list">{list.map((a) => <article key={a.id}>
+          <div><span>{a.is_default ? "DEFAULT" : "ADDRESS"}</span><strong>{a.label}</strong></div>
+          <div className="order-products"><span>LOCATION</span><strong>{a.address}, {a.city} - {a.pincode}</strong></div>
+          <div className="order-actions">
+            {!a.is_default && <button onClick={() => makeDefault(a.id)}>Make default</button>}
+            <button onClick={() => remove(a.id)}>Delete</button>
+          </div>
+        </article>)}</div>}
   </>;
 }
-
 function Settings({ navigate }: { navigate: Navigate }) {
   return <><PanelTitle title="Account Settings" copy="Manage your preferences and account access." /><div className="settings-list">
     <div><span><strong>Email preferences</strong><small>Product news and order updates</small></span><input aria-label="Email preferences" type="checkbox" /></div>
