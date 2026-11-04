@@ -58,7 +58,7 @@ export function AdminLogin({ navigate, forgot = false }: { navigate: Navigate; f
     <section className="admin-auth-brand"><AdminMark /><div><p className="eyebrow light">BAKERY MANAGEMENT</p><h1>Crafted with care.<br /><em>Managed with clarity.</em></h1></div><small>Frontend administration preview</small></section>
     <section className="admin-auth-form"><div>
       <p className="eyebrow">{forgot ? "RECOVERY" : "SECURE AREA"}</p><h2>{forgot ? "Reset Admin Password" : "Épi d’Or Admin"}</h2><p>{forgot ? "Enter the authorized admin email to prepare a reset link." : "Sign in to manage your bakery."}</p>
-      <div className="prototype-note">Frontend preview only — no admin credentials are submitted or stored.</div>
+      
       {sent ? <div className="recovery-success"><div className="success-seal">✓</div><h3>Check Your Email</h3><p>If this email belongs to an admin account, a reset link has been sent.</p><button className="btn" onClick={() => navigate("/admin/login")}>Return to Login</button></div> :
       <form onSubmit={submit}><label className="field">Email<input required type="email" autoComplete="email" /></label>{!forgot && <label className="field">Password<input required type="password" autoComplete="current-password" /></label>}{error && <p role="alert" style={{ color: "#b3261e", margin: "0 0 12px" }}>{error}</p>}<button className="btn" type="submit" disabled={busy}>{forgot ? "Send Reset Link" : busy ? "Signing in..." : "Login to Dashboard"}</button></form>}
       {!forgot && <button className="admin-forgot" onClick={() => navigate("/admin/forgot-password")}>Forgot Password?</button>}
