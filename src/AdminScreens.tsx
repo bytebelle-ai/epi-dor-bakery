@@ -3,15 +3,12 @@ import { FormEvent, useEffect, useState } from "react";
 
 type Navigate = (path: string) => void;
 
-const menu = [
-  ["/admin/dashboard", "Dashboard"],
-  ["/admin/orders", "Orders"],
-  ["/admin/products", "Products"],
-  ["/admin/categories", "Categories"],
-  ["/admin/customers", "Customers"],
-  ["/admin/settings", "Settings"],
-];
-
+   const menu = [
+     ["/admin/dashboard", "Dashboard"],
+     ["/admin/orders", "Orders"],
+     ["/admin/enquiries", "Enquiries"],
+     ["/admin/products", "Products"],
+   ];
 const adminProducts = [
   ["Classic Chocolate Brownie", "Brownies", "₹129", "Available"],
   ["Classic Cheesecake", "Cheesecakes", "₹799 – ₹1599", "Available"],
@@ -83,6 +80,7 @@ export function AdminApp({ path, navigate, logout }: { path: string; navigate: N
   let screen: React.ReactNode;
   if (path.includes("/orders/")) screen = <AdminOrderDetail navigate={navigate} />;
   else if (path === "/admin/orders") screen = <AdminOrders navigate={navigate} />;
+   else if (path === "/admin/enquiries") screen = <AdminEnquiries />;
   else if (path === "/admin/products/add") screen = <ProductForm navigate={navigate} />;
   else if (path.includes("/admin/products/edit")) screen = <ProductForm navigate={navigate} edit />;
   else if (path === "/admin/products") screen = <AdminProducts navigate={navigate} />;
@@ -447,4 +445,78 @@ function EmptyAdmin({ text }: { text: string }) {
 
 export function AdminLogout({ navigate }: { navigate: Navigate }) {
   return <main className="admin-logout"><AdminMark /><div className="success-seal">✓</div><h1>Admin signed out</h1><p>The frontend preview state has ended. No secure session was created.</p><button className="admin-primary" onClick={() => navigate("/admin/login")}>Return to Admin Login</button></main>;
+}
+
+
+function AdminEnquiries() {
+  const [tab, setTab] = useState<"cakes" | "messages">("cakes");
+  const [cakes, setCakes] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    Promise.all([
+      supabase.from("custom_cake_requests").select("*").order("created_at", { ascending: false }),
+      supabase.from("contact_messages").select("*").order("created_at", { ascending: false }),
+    ]).then(([c, m]) => {
+      if (c.error || m.error) setError((c.error ?? m.error)!.message);
+      setCakes(c.data ?? []);
+      setMessages(m.data ?? []);
+      setLoading(false);
+    });
+  }, []);
+  const changeStatus = async (table: string, id: string | number, value: string) => {
+    const { error: err } = await supabase.from(table).update({ status: value }).eq("id", id);
+    if (err) { setError(err.message); return; }
+    const patch = (rows: any[]) => rows.map((r) => (r.id === id ? { ...r, status: value } : r));
+    if (table === "custom_cake_requests") setCakes(patch); else setMessages(patch);
+  };
+  const wa = (phone: string) => {
+    const d = (phone ?? "").replace(/\D/g, "");
+    return `https://wa.me/${d.length === 10 ? "91" + d : d}`;
+  };
+  const table = tab === "cakes" ? "custom_cake_requests" : "contact_messages";
+  const rows = tab === "cakes" ? cakes : messages;
+  return (
+    <div className="admin-page">
+      <PageHead eyebrow="CUSTOMER ENQUIRIES" title="Enquiries" copy="Custom cake requests and messages from the website. Call or WhatsApp the customer, then mark progress." />
+      <div className="admin-filters">
+        <button onClick={() => setTab("cakes")} style={{ fontWeight: tab === "cakes" ? 700 : 400 }}>Custom cakes ({cakes.length})</button>
+        <button onClick={() => setTab("messages")} style={{ fontWeight: tab === "messages" ? 700 : 400 }}>Messages ({messages.length})</button>
+      </div>
+      {error && <div className="form-state error">{error}</div>}
+      <div className="admin-table-card">
+        {loading ? <p>Loading...</p> : rows.length === 0 ? <EmptyAdmin text="No enquiries yet" /> : (
+          <table>
+            <thead><tr><th>Received</th><th>Customer</th><th>Details</th><th>Status</th><th>Contact</th></tr></thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id}>
+                  <td>{new Date(r.created_at).toLocaleString("en-IN")}</td>
+                  <td>{r.name}<br /><small>{r.phone}</small>{r.email ? <><br /><small>{r.email}</small></> : null}</td>
+                  <td>
+                    {tab === "cakes" ? <>
+                      {r.cake_name} ({r.size}), needed {r.required_date}<br />
+                      <small>{[r.diet && r.diet !== "None" ? r.diet : "", r.cake_message ? `Message: ${r.cake_message}` : "", r.flavour ? `Flavour: ${r.flavour}` : "", r.instructions ?? ""].filter(Boolean).join(" | ")}</small>
+                    </> : r.message}
+                  </td>
+                  <td>
+                    <select value={r.status} onChange={(e) => changeStatus(table, r.id, e.target.value)}>
+                      <option value="new">New</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="done">Done</option>
+                    </select>
+                  </td>
+                  <td>
+                    <a href={`tel:${r.phone}`}>Call</a>{" | "}
+                    <a href={wa(r.phone)} target="_blank" rel="noreferrer">WhatsApp</a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
 }
