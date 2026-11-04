@@ -274,18 +274,49 @@ function Detail({ product, add, buyNow, back }: { product: Product; add: (p: Pro
   </main>;
 }
 
-function CustomCakes({ add }: { add: (p: Product, v: Variant, quantity?: number, note?: string) => void }) {
-  const products = useProducts();
+   function CustomCakes(_props: { add: (p: Product, v: Variant, quantity?: number, note?: string) => void }) {  const products = useProducts();
   const cakes = products.filter((p) => p.category === "Celebration Cakes");
   const [cake, setCake] = useState(cakes[0]);
   const [variant, setVariant] = useState(cakes[0].variants[0]);
   const [diet, setDiet] = useState("None");
   const [message, setMessage] = useState("");
+     const [flavour, setFlavour] = useState("");
+     const [instructions, setInstructions] = useState("");
+     const [reqDate, setReqDate] = useState("");
+     const [name, setName] = useState("");
+     const [phone, setPhone] = useState("");
+     const [email, setEmail] = useState("");
+     const [busy, setBusy] = useState(false);
+     const [err, setErr] = useState("");
+     const [sent, setSent] = useState(false);
+     const submitRequest = async (e: { preventDefault: () => void }) => {
+       e.preventDefault();
+       if (busy) return;
+       setBusy(true);
+       setErr("");
+       const { error } = await supabase.from("custom_cake_requests").insert({
+         cake_name: cake.name,
+         size: variant.label,
+         price: variant.price,
+         diet,
+         cake_message: message.trim() || null,
+         flavour: flavour.trim() || null,
+         instructions: instructions.trim() || null,
+         required_date: reqDate,
+         name: name.trim(),
+         phone: phone.trim(),
+         email: email.trim() || null,
+       });
+       setBusy(false);
+              if (error) { setErr("Sorry, something went wrong. Please try again or message us on WhatsApp."); return; }
+       setSent(true);
+     };
+     if (sent) return <main className="page"><section className="custom-builder section"><div className="custom-intro"><p className="eyebrow">REQUEST RECEIVED</p><h2>Thank you, {name}!</h2><p>Our bakers will contact you on {phone} to confirm details and pricing.</p></div></section></main>;
   return <main className="page">
     <section className="custom-hero"><img src={photos.cake} alt="Artisan celebration cake" /><div><p className="eyebrow light">MADE FOR YOUR MOMENT</p><h1>Your celebration,<br /><em>beautifully baked.</em></h1><p>Choose from our celebration cake catalogue and share your preferences with our bakers.</p></div></section>
     <section className="custom-builder section">
       <div className="custom-intro"><p className="eyebrow">PERSONALISE YOUR CAKE</p><h2>Tell us what you have in mind</h2><p>All cakes can be personalized to your preference. Any flavor can be customized to suit your taste with advance notice.</p></div>
-      <form className="cake-form" onSubmit={(e) => { e.preventDefault(); add(cake, variant, 1, `${diet}${message ? ` · ${message}` : ""}`); }}>
+              <form className="cake-form" onSubmit={submitRequest}>
         <fieldset className="cake-step">
           <legend><span>1.</span> Choose Your Cake</legend>
           <div className="cake-choice-grid">{cakes.map((item) => <button type="button" className={cake.id === item.id ? "selected" : ""} key={item.id} onClick={() => { setCake(item); setVariant(item.variants[0]); }}>
@@ -302,21 +333,22 @@ function CustomCakes({ add }: { add: (p: Product, v: Variant, quantity?: number,
           <legend><span>3.</span> Personalization</legend>
           <label className="field">Message on cake<input value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Happy Birthday, Congratulations..." /></label>
           <div className="field"><span>Dietary preference</span><div className="diet-row">{["None", "Vegan", "Gluten-Free", "Sugar-Free"].map((d) => <button type="button" className={diet === d ? "selected" : ""} key={d} onClick={() => setDiet(d)}>{d}</button>)}</div><small>Available upon request. Requires advance notice.</small></div>
-          <label className="field">Flavor / customization<input placeholder="Share your preferred flavor or customization" /></label>
-          <label className="field">Special instructions<textarea placeholder="Any additional details about decoration, colours, theme..." /></label>
-        </fieldset>
+                       <label className="field">Flavor / customization<input value={flavour} onChange={(e) => setFlavour(e.target.value)} placeholder="Share your preferred flavor or customization" /></label>
+                                <label className="field">Special instructions<textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} placeholder="Any additional details about decoration, colours, theme..." /></label>
+           </fieldset>
 
         <fieldset className="cake-step">
           <legend><span>4.</span> Date &amp; Contact</legend>
           <div className="contact-field-grid">
-            <label className="field">Required date *<input required type="date" /></label>
-            <label className="field">Full name *<input required autoComplete="name" /></label>
-            <label className="field">Phone *<input required type="tel" autoComplete="tel" /></label>
-            <label className="field">Email<input type="email" autoComplete="email" /></label>
+               <label className="field">Required date *<input required type="date" value={reqDate} onChange={(e) => setReqDate(e.target.value)} /></label>
+               <label className="field">Full name *<input required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} /></label>
+               <label className="field">Phone *<input required type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></label>
+               <label className="field">Email<input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
           </div>
         </fieldset>
 
-        <div className="cake-form-submit"><div><small>SELECTED CAKE</small><strong>{cake.name} · {variant.label}</strong><span>{money(variant.price)}</span></div><Button type="submit">Continue with Request</Button></div>
+           {err && <p className="form-error" style={{ color: "#b00020" }}>{err}</p>}        
+<div className="cake-form-submit"><div><small>SELECTED CAKE</small><strong>{cake.name} · {variant.label}</strong><span>{money(variant.price)}</span></div><Button type="submit">   {busy ? "Sending..." : "Send Request"}</Button></div>
       </form>
     </section>
   </main>;
@@ -331,9 +363,24 @@ function About() {
 }
 
 function Contact() {
-  return <main className="page contact section">
-    <div className="contact-copy"><p className="eyebrow">WE’D LOVE TO HEAR FROM YOU</p><h1>Let’s make something<br /><em>beautiful.</em></h1><p>Questions about an order or planning a celebration? Get in touch with Épi d’Or in Mumbai.</p><div className="contact-list"><a href="tel:+918369301551"><span>CALL US</span>+91 8369301551</a><a href="https://instagram.com/epidor_patisserie" target="_blank" rel="noreferrer"><span>INSTAGRAM</span>@epidor_patisserie</a><div><span>LOCATION</span>Mumbai</div></div></div>
-    <form className="contact-form" onSubmit={(e) => e.preventDefault()}><h2>Send an enquiry</h2><label className="field">Your name<input required /></label><label className="field">Phone<input required type="tel" /></label><label className="field full">How can we help?<textarea required /></label><Button type="submit">Send Enquiry</Button><a className="whatsapp" href="https://wa.me/918369301551">Continue on WhatsApp</a></form>
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [sent, setSent] = useState(false);
+  const submit = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    if (busy) return;
+    setBusy(true);
+    setErr("");
+    const { error } = await supabase.from("contact_messages").insert({ name: name.trim(), phone: phone.trim(), message: msg.trim() });
+    setBusy(false);
+    if (error) { setErr("Sorry, something went wrong. Please try again or message us on WhatsApp."); return; }
+    setSent(true);
+  };
+  return <main className="page contact section">    <div className="contact-copy"><p className="eyebrow">WE&rsquo;D LOVE TO HEAR FROM YOU</p><h1>Let&rsquo;s make something<br /><em>beautiful.</em></h1><p>Questions about an order or planning a celebration? Get in touch with &Eacute;pi d&rsquo;Or in Mumbai.</p><div className="contact-list"><a href="tel:+918369301551"><span>CALL US</span>+91 8369301551</a><a href="https://instagram.com/epidor_patisserie" target="_blank" rel="noreferrer"><span>INSTAGRAM</span>@epidor_patisserie</a><div><span>LOCATION</span>Mumbai</div></div></div>
+    {sent ? <div className="contact-form"><h2>Thank you!</h2><p>We have received your enquiry and will get back to you soon.</p></div> : <form className="contact-form" onSubmit={submit}><h2>Send an enquiry</h2><label className="field">Your name<input required value={name} onChange={(e) => setName(e.target.value)} /></label><label className="field">Phone<input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></label><label className="field full">How can we help?<textarea required value={msg} onChange={(e) => setMsg(e.target.value)} /></label>{err && <p className="form-error" style={{ color: "#b00020" }}>{err}</p>}<Button type="submit">{busy ? "Sending..." : "Send Enquiry"}</Button><a className="whatsapp" href="https://wa.me/918369301551">Continue on WhatsApp</a></form>}
   </main>;
 }
 
