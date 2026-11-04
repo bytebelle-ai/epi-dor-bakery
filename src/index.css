@@ -175,11 +175,11 @@ legend, .field { font-size: .71rem; font-weight: 600; letter-spacing: .06em; tex
 .size-choice-row button.selected { border-color: var(--green); background: var(--green); color: var(--ivory); }
 .size-choice-row button span { font-size: .72rem; }
 .cake-step .field { margin-top: 1.4rem; color: var(--ink); font-size: .72rem; font-weight: 500; letter-spacing: 0; text-transform: none; }
-.cake-step .field:first-of-type { margin-top: .6rem; }
+.cake-step .field:first-of-type { margin-top: .6rem; }.cake-step .contact-field-grid .field:first-of-type { margin-top: 1.4rem; }
 .cake-step .field input, .cake-step .field textarea { border-radius: .75rem; background: rgba(244,244,228,.65); }
 .cake-step .field input:focus, .cake-step .field textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
 .cake-step .diet-row button { border-radius: 2rem; padding: .72rem 1.25rem; font-size: .72rem; }
-.contact-field-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 1.2rem; }
+.contact-field-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: 1.2rem; align-items: start; }
 .cake-form-submit { position: sticky; z-index: 2; bottom: 1rem; padding: 1.2rem 1.4rem; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--line); background: rgba(250,249,240,.94); box-shadow: 0 .7rem 2rem rgba(40,49,38,.1); backdrop-filter: blur(10px); }
 .cake-form-submit > div { display: grid; grid-template-columns: 1fr auto; gap: .25rem 2rem; }
 .cake-form-submit small { grid-column: 1/-1; color: var(--green); font-size: .52rem; letter-spacing: .12em; }
