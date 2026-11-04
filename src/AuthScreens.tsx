@@ -183,7 +183,7 @@ export function CustomerSignup({ navigate, onDemoLogin }: { navigate: Navigate; 
   };
   return (
     <AuthShell eyebrow="BECOME PART OF ÉPI D’OR" title="Create Your Account" copy="Join Épi d’Or and keep your favourite orders close.">
-      {success && <div className="form-state success">Account preview created. Opening your account…</div>}
+      {success && <div className="form-state success">Account created. Opening your account…</div>}
       {error && <div className="form-state error">{error}</div>}
       {info && <div className="form-state success">{info}</div>}
       <form className="auth-form signup-form" onSubmit={submit}>
@@ -276,8 +276,7 @@ function AccountShell({ path, navigate, logout, children }: { path: string; navi
   return (
     <main className="account-page page section">
       <header className="account-header">
-        <div><p className="eyebrow">MY ÉPI D’OR</p><h1>Hello, Guest Preview</h1><p>Your account area is ready to connect to real customer data.</p></div>
-        <span className="preview-pill">UI PREVIEW</span>
+        <div><p className="eyebrow">MY ÉPI D’OR</p><h1>Welcome back</h1><p>Manage your profile, orders and saved addresses.</p></div>
       </header>
       <div className="account-layout">
         <aside className="account-nav">
