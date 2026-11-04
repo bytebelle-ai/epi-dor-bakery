@@ -289,9 +289,11 @@ function Detail({ product, add, buyNow, back }: { product: Product; add: (p: Pro
      const [busy, setBusy] = useState(false);
      const [err, setErr] = useState("");
      const [sent, setSent] = useState(false);
+     const [website, setWebsite] = useState("");
      const submitRequest = async (e: { preventDefault: () => void }) => {
        e.preventDefault();
        if (busy) return;
+       if (website) { setSent(true); return; }
        setBusy(true);
        setErr("");
        const { error } = await supabase.from("custom_cake_requests").insert({
@@ -317,6 +319,7 @@ function Detail({ product, add, buyNow, back }: { product: Product; add: (p: Pro
     <section className="custom-builder section">
       <div className="custom-intro"><p className="eyebrow">PERSONALISE YOUR CAKE</p><h2>Tell us what you have in mind</h2><p>All cakes can be personalized to your preference. Any flavor can be customized to suit your taste with advance notice.</p></div>
               <form className="cake-form" onSubmit={submitRequest}>
+<input type="text" name="website" value={website} onChange={(e) => setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }} />
         <fieldset className="cake-step">
           <legend><span>1.</span> Choose Your Cake</legend>
           <div className="cake-choice-grid">{cakes.map((item) => <button type="button" className={cake.id === item.id ? "selected" : ""} key={item.id} onClick={() => { setCake(item); setVariant(item.variants[0]); }}>
@@ -369,9 +372,11 @@ function Contact() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [sent, setSent] = useState(false);
+const [website, setWebsite] = useState("");
   const submit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (busy) return;
+if (website) { setSent(true); return; }
     setBusy(true);
     setErr("");
     const { error } = await supabase.from("contact_messages").insert({ name: name.trim(), phone: phone.trim(), message: msg.trim() });
@@ -380,7 +385,7 @@ function Contact() {
     setSent(true);
   };
   return <main className="page contact section">    <div className="contact-copy"><p className="eyebrow">WE&rsquo;D LOVE TO HEAR FROM YOU</p><h1>Let&rsquo;s make something<br /><em>beautiful.</em></h1><p>Questions about an order or planning a celebration? Get in touch with &Eacute;pi d&rsquo;Or in Mumbai.</p><div className="contact-list"><a href="tel:+918369301551"><span>CALL US</span>+91 8369301551</a><a href="https://instagram.com/epidor_patisserie" target="_blank" rel="noreferrer"><span>INSTAGRAM</span>@epidor_patisserie</a><div><span>LOCATION</span>Mumbai</div></div></div>
-    {sent ? <div className="contact-form"><h2>Thank you!</h2><p>We have received your enquiry and will get back to you soon.</p></div> : <form className="contact-form" onSubmit={submit}><h2>Send an enquiry</h2><label className="field">Your name<input required value={name} onChange={(e) => setName(e.target.value)} /></label><label className="field">Phone<input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></label><label className="field full">How can we help?<textarea required value={msg} onChange={(e) => setMsg(e.target.value)} /></label>{err && <p className="form-error" style={{ color: "#b00020" }}>{err}</p>}<Button type="submit">{busy ? "Sending..." : "Send Enquiry"}</Button><a className="whatsapp" href="https://wa.me/918369301551">Continue on WhatsApp</a></form>}
+    {sent ? <div className="contact-form"><h2>Thank you!</h2><p>We have received your enquiry and will get back to you soon.</p></div> : <form className="contact-form" onSubmit={submit}><input type="text" name="website" value={website} onChange={(e) => setWebsite(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", opacity: 0 }} /><h2>Send an enquiry</h2><label className="field">Your name<input required value={name} onChange={(e) => setName(e.target.value)} /></label><label className="field">Phone<input required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} /></label><label className="field full">How can we help?<textarea required value={msg} onChange={(e) => setMsg(e.target.value)} /></label>{err && <p className="form-error" style={{ color: "#b00020" }}>{err}</p>}<Button type="submit">{busy ? "Sending..." : "Send Enquiry"}</Button><a className="whatsapp" href="https://wa.me/918369301551">Continue on WhatsApp</a></form>}
   </main>;
 }
 
