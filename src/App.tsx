@@ -470,9 +470,14 @@ export default function App() {
   const [demoLoggedIn, setDemoLoggedIn] = useState(false);
   const [lastOrder, setLastOrder] = useState<PlacedOrder | null>(null);
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setDemoLoggedIn(!!data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => setDemoLoggedIn(!!session));
-    return () => sub.subscription.unsubscribe();
+        const check = async (session: any) => {
+  if (!session) { setDemoLoggedIn(false); return; }
+  const { data } = await supabase.rpc("is_admin");
+  setDemoLoggedIn(!data);
+};
+supabase.auth.getSession().then(({ data }) => check(data.session));
+const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => { setTimeout(() => check(session), 0); });
+        return () => sub.subscription.unsubscribe();
   }, []);
   const [authGateOpen, setAuthGateOpen] = useState(false);
   const [authDestination, setAuthDestination] = useState<string | null>(null);
