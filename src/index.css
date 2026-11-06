@@ -681,3 +681,9 @@ footer .logo, footer .logo i { color: var(--ivory); }
 .header.home-header:not(.compact) .logo-green, footer .logo-green { display: none; }
 .header.compact { height: 6.5rem; }
 @media (max-width: 700px) { .logo img { height: 64px; } .header.compact { height: 5rem; } }
+
+footer .logo .logo-gold { display: block; }
+footer .logo .logo-green { display: none; }
+
+.brand-script { font-family: "Pinyon Script", cursive; font-style: normal; font-weight: 400; letter-spacing: 0; font-size: 1.15em; }
+.brand-script { display: inline-block; padding-bottom: 0.25em; line-height: 1; }

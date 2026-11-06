@@ -12,19 +12,19 @@ const IconArrow = () => (
 export function WelcomeEntry({ enterCustomer, enterAdmin }: { enterCustomer: () => void; enterAdmin: () => void }) {
   return <main className="welcome-entry">
     <section className="welcome-visual">
-      <img src="https://images.unsplash.com/photo-1686515266396-080c4939e6b4?auto=format&fit=crop&w=1600&q=88" alt="Épi d’Or artisan patisserie selection" />
+      <img src="https://images.unsplash.com/photo-1686515266396-080c4939e6b4?auto=format&fit=crop&w=1600&q=88" alt="Epi D’or artisan patisserie selection" />
             <div className="welcome-wordmark"><img src="/epidor-full-gold.webp" alt="Epi D'or Boulangerie and Patisserie" style={{ height: "110px", width: "auto", display: "block" }} /></div>
       <p>Traditional baking.<br /><em>Contemporary flavours.</em></p>
     </section>
     <section className="welcome-choices">
       <div className="welcome-inner">
         <p className="eyebrow">A WARM WELCOME</p>
-        <h1>Welcome to <em>Épi d’Or</em></h1>
+        <h1>Welcome to <em className="brand-script">Epi D’or</em></h1>
         <p className="welcome-lede">Discover handcrafted cakes, bakes and treats made with warmth.</p>
         <div className="entry-options">
           <article>
             <span>01</span>
-            <div><h2>Customer</h2><p>Explore our menu and discover Épi d’Or.</p></div>
+            <div><h2>Customer</h2><p>Explore our menu and discover Epi D’or.</p></div>
             <button className="btn" onClick={enterCustomer}>Enter as Customer</button>
           </article>
           <article>
@@ -63,7 +63,7 @@ export function RoleSelection({ customer, admin }: { customer: () => void; admin
           <span>02 · ADMIN</span>
           <div className="role-ornament">A</div>
           <h2>Bakery<br />management.</h2>
-          <p>Manage Épi d’Or.</p>
+          <p>Manage Epi D’or.</p>
           <button className="role-outline-btn" onClick={admin}>Continue as Admin <IconArrow /></button>
         </article>
       </div>
@@ -107,7 +107,7 @@ function AuthShell({
           alt="An elegant display of handcrafted pastries"
         />
         <div>
-          <p className="eyebrow light">ÉPI D’OR PATISSERIE</p>
+          <p className="eyebrow light">EPI D’OR PATISSERIE</p>
           <blockquote>“A little warmth,<br />baked into every day.”</blockquote>
           <span>100% vegetarian · Mumbai</span>
         </div>
@@ -140,7 +140,7 @@ export function CustomerLogin({ navigate, onDemoLogin }: { navigate: Navigate; o
     onDemoLogin();
   };
   return (
-    <AuthShell eyebrow="CUSTOMER ACCOUNT" title="Welcome Back" copy="Sign in to continue your Épi d’Or experience.">
+    <AuthShell eyebrow="CUSTOMER ACCOUNT" title="Welcome Back" copy="Sign in to continue your Epi D’or experience.">
       {error && <div className="form-state error">{error}</div>}
       <form className="auth-form" onSubmit={submit}>
         <label className="field">Email Address<input required type="email" autoComplete="email" placeholder="you@example.com" /></label>
@@ -182,7 +182,7 @@ export function CustomerSignup({ navigate, onDemoLogin }: { navigate: Navigate; 
     else setInfo("Check your email to confirm your account, then log in.");
   };
   return (
-    <AuthShell eyebrow="BECOME PART OF ÉPI D’OR" title="Create Your Account" copy="Join Épi d’Or and keep your favourite orders close.">
+    <AuthShell eyebrow="BECOME PART OF EPI D’OR" title="Create Your Account" copy="Join Epi D’or and keep your favourite orders close.">
       {success && <div className="form-state success">Account created. Opening your account…</div>}
       {error && <div className="form-state error">{error}</div>}
       {info && <div className="form-state success">{info}</div>}
@@ -231,7 +231,7 @@ export function PasswordFlow({ reset = false, admin = false, navigate }: { reset
     <AuthShell
       eyebrow={admin ? "ADMIN ACCESS" : "ACCOUNT RECOVERY"}
       title={reset ? "Create New Password" : "Reset Your Password"}
-      copy={reset ? "Choose a new password for your Épi d’Or account." : "Enter your email and we’ll prepare a password reset link."}
+      copy={reset ? "Choose a new password for your Epi D’or account." : "Enter your email and we’ll prepare a password reset link."}
     >
       {error && <p role="alert" style={{ color: "#b3261e", margin: "0 0 12px" }}>{error}</p>}
       {sent ? (
@@ -276,7 +276,7 @@ function AccountShell({ path, navigate, logout, children }: { path: string; navi
   return (
     <main className="account-page page section">
       <header className="account-header">
-        <div><p className="eyebrow">MY ÉPI D’OR</p><h1>Welcome back</h1><p>Manage your profile, orders and saved addresses.</p></div>
+        <div><p className="eyebrow">MY EPI D’OR</p><h1>Welcome back</h1><p>Manage your profile, orders and saved addresses.</p></div>
       </header>
       <div className="account-layout">
         <aside className="account-nav">

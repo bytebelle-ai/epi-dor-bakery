@@ -18,7 +18,7 @@ const adminProducts = [
 ];
 
 function AdminMark() {
-  return <div className="admin-mark"><strong>Épi d’Or</strong><span>ADMINISTRATION</span></div>;
+  return <div className="admin-mark"><strong>Epi D’or</strong><span>ADMINISTRATION</span></div>;
 }
 
 export function AdminLogin({ navigate, forgot = false }: { navigate: Navigate; forgot?: boolean }) {
@@ -54,7 +54,7 @@ export function AdminLogin({ navigate, forgot = false }: { navigate: Navigate; f
   return <main className="admin-auth">
     <section className="admin-auth-brand"><AdminMark /><div><p className="eyebrow light">BAKERY MANAGEMENT</p><h1>Crafted with care.<br /><em>Managed with clarity.</em></h1></div><small>Frontend administration preview</small></section>
     <section className="admin-auth-form"><div>
-      <p className="eyebrow">{forgot ? "RECOVERY" : "SECURE AREA"}</p><h2>{forgot ? "Reset Admin Password" : "Épi d’Or Admin"}</h2><p>{forgot ? "Enter the authorized admin email to prepare a reset link." : "Sign in to manage your bakery."}</p>
+      <p className="eyebrow">{forgot ? "RECOVERY" : "SECURE AREA"}</p><h2>{forgot ? "Reset Admin Password" : "Epi D’or Admin"}</h2><p>{forgot ? "Enter the authorized admin email to prepare a reset link." : "Sign in to manage your bakery."}</p>
       
       {sent ? <div className="recovery-success"><div className="success-seal">✓</div><h3>Check Your Email</h3><p>If this email belongs to an admin account, a reset link has been sent.</p><button className="btn" onClick={() => navigate("/admin/login")}>Return to Login</button></div> :
       <form onSubmit={submit}><label className="field">Email<input required type="email" autoComplete="email" /></label>{!forgot && <label className="field">Password<input required type="password" autoComplete="current-password" /></label>}{error && <p role="alert" style={{ color: "#b3261e", margin: "0 0 12px" }}>{error}</p>}<button className="btn" type="submit" disabled={busy}>{forgot ? "Send Reset Link" : busy ? "Signing in..." : "Login to Dashboard"}</button></form>}
@@ -67,7 +67,7 @@ function AdminShell({ path, navigate, logout, children }: { path: string; naviga
   const [confirmSwitch, setConfirmSwitch] = useState(false);
   return <main className="admin-app">
     <aside className="admin-sidebar"><AdminMark /><nav>{menu.map(([href, label]) => <button className={path.startsWith(href) ? "active" : ""} key={href} onClick={() => navigate(href)}><i />{label}</button>)}</nav><div className="admin-side-foot"><button onClick={() => setConfirmSwitch(true)}>Switch / Change Access</button><button onClick={logout}>Logout</button></div></aside>
-    <section className="admin-workspace"><header><div><span className="admin-mobile-logo">Épi d’Or Admin</span></div><div className="admin-tools"><button aria-label="Notifications">○</button><span><i>EA</i><small>Admin Preview<b>Administrator</b></small></span><button onClick={() => setConfirmSwitch(true)}>Switch Access</button><button onClick={logout}>Logout</button></div></header>{children}</section>
+    <section className="admin-workspace"><header><div><span className="admin-mobile-logo">Epi D’or Admin</span></div><div className="admin-tools"><button aria-label="Notifications">○</button><span><i>EA</i><small>Admin Preview<b>Administrator</b></small></span><button onClick={() => setConfirmSwitch(true)}>Switch Access</button><button onClick={logout}>Logout</button></div></header>{children}</section>
     {confirmSwitch && <div className="admin-switch-layer" role="dialog" aria-modal="true" aria-labelledby="admin-switch-title"><button aria-label="Cancel" className="admin-switch-scrim" onClick={() => setConfirmSwitch(false)} /><section><p className="eyebrow">LEAVE ADMIN AREA</p><h2 id="admin-switch-title">Change access?</h2><p>Leaving the admin dashboard should end or revalidate the admin session when secure authentication is connected.</p><div><button className="admin-secondary" onClick={() => setConfirmSwitch(false)}>Stay Here</button><button className="admin-primary" onClick={() => navigate("/select-role")}>Continue</button></div></section></div>}
   </main>;
 }
@@ -124,7 +124,7 @@ function AdminDashboard({ navigate }: { navigate: Navigate }) {
   const recent = orders.slice(0, 5);
   return (
     <div className="admin-page">
-      <PageHead eyebrow="OVERVIEW" title="Good morning, Admin" copy="Here’s what is happening at Épi d’Or today." />
+      <PageHead eyebrow="OVERVIEW" title="Good morning, Admin" copy="Here’s what is happening at Epi D’or today." />
       {error && <div className="form-state error">{error}</div>}
       <div className="stat-grid">{stats.map(([label, value], i) => <article key={label}><span>0{i + 1}</span><strong>{value}</strong><p>{label}</p></article>)}</div>
       <div className="admin-split">
@@ -427,7 +427,7 @@ function ProductForm({ navigate, edit = false }: { navigate: Navigate; edit?: bo
 
 function AdminCategories() {
   const categories = [["Brownies", 4], ["Cheesecakes", 4], ["Cookies", 5], ["Tub Cakes", 4], ["Celebration Cakes", 4], ["Sugar-Free Goodies", 5], ["Breads", 5], ["Savour Jars", 5]];
-  return <div className="admin-page"><PageHead eyebrow="CATALOGUE" title="Categories" copy="Organize the eight Épi d’Or menu categories." action={<button className="admin-primary">+ Add Category</button>} /><div className="category-admin-grid">{categories.map(([name, count], i) => <article key={name}><span>0{i + 1}</span><h2>{name}</h2><p>{count} products</p><div><button>Edit</button><button>Manage</button></div></article>)}</div></div>;
+  return <div className="admin-page"><PageHead eyebrow="CATALOGUE" title="Categories" copy="Organize the eight Epi D’or menu categories." action={<button className="admin-primary">+ Add Category</button>} /><div className="category-admin-grid">{categories.map(([name, count], i) => <article key={name}><span>0{i + 1}</span><h2>{name}</h2><p>{count} products</p><div><button>Edit</button><button>Manage</button></div></article>)}</div></div>;
 }
 
 function AdminCustomers() {
@@ -436,7 +436,7 @@ function AdminCustomers() {
 
 function AdminSettings() {
   const [saved, setSaved] = useState(false);
-  return <div className="admin-page"><PageHead eyebrow="CONFIGURATION" title="Settings" copy="Manage the bakery’s public contact details and fulfilment preferences." />{saved && <div className="form-state success">Settings preview updated for this screen.</div>}<form className="settings-admin-form" onSubmit={(e) => { e.preventDefault(); setSaved(true); }}><h2>Bakery information</h2><label className="field">Brand Name<input defaultValue="Épi d’Or" /></label><label className="field">Phone<input defaultValue="+91 8369301551" /></label><label className="field">Instagram<input defaultValue="@epidor_patisserie" /></label><label className="field">Location<input defaultValue="Mumbai" /></label><h2>Order options</h2><label className="check-line"><input defaultChecked type="checkbox" /> Pickup available</label><label className="check-line"><input type="checkbox" /> Delivery available</label><button className="admin-primary" type="submit">Save Settings</button></form></div>;
+  return <div className="admin-page"><PageHead eyebrow="CONFIGURATION" title="Settings" copy="Manage the bakery’s public contact details and fulfilment preferences." />{saved && <div className="form-state success">Settings preview updated for this screen.</div>}<form className="settings-admin-form" onSubmit={(e) => { e.preventDefault(); setSaved(true); }}><h2>Bakery information</h2><label className="field">Brand Name<input defaultValue="Epi D’or" /></label><label className="field">Phone<input defaultValue="+91 8369301551" /></label><label className="field">Instagram<input defaultValue="@epidor_patisserie" /></label><label className="field">Location<input defaultValue="Mumbai" /></label><h2>Order options</h2><label className="check-line"><input defaultChecked type="checkbox" /> Pickup available</label><label className="check-line"><input type="checkbox" /> Delivery available</label><button className="admin-primary" type="submit">Save Settings</button></form></div>;
 }
 
 function EmptyAdmin({ text }: { text: string }) {

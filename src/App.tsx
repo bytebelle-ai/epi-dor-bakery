@@ -205,7 +205,7 @@ function Home({ navigate, view, add }: { navigate: (p: string, category?: string
     </section>
 
     <section className="intro section">
-      <p className="eyebrow">THE ÉPI D’OR WAY</p>
+      <p className="eyebrow">THE EPI D’OR WAY</p>
       <h2>Small moments, made <em>extraordinary.</em></h2>
       <p>Where the essence of traditional baking meets contemporary flavours, bringing joy and comfort to every customer.</p>
     </section>
@@ -224,7 +224,7 @@ function Home({ navigate, view, add }: { navigate: (p: string, category?: string
 
     <section className="story section">
       <div className="story-image"><img src={photos.bakery} alt="Fresh artisan breads in a bakery" /><span>BAKED WITH CARE</span></div>
-      <div className="story-copy"><p className="eyebrow">OUR STORY</p><h2>A warm welcome to<br /><em>Épi d’Or</em></h2><p>Established with a passion for creating wholesome products, Épi d’Or is growing into a beloved bakery brand known for its rich, heart-filling offerings.</p><Button kind="text" onClick={() => navigate("about")}>Discover our story <Icon name="arrow" /></Button></div>
+      <div className="story-copy"><p className="eyebrow">OUR STORY</p><h2>A warm welcome to<br /><em className="brand-script">Epi D’or</em></h2><p>Established with a passion for creating wholesome products, Epi D’or is growing into a beloved bakery brand known for its rich, heart-filling offerings.</p><Button kind="text" onClick={() => navigate("about")}>Discover our story <Icon name="arrow" /></Button></div>
     </section>
   </main>;
 }
@@ -359,9 +359,9 @@ function Detail({ product, add, buyNow, back }: { product: Product; add: (p: Pro
 
 function About() {
   return <main className="page">
-    <section className="editorial-hero section"><div><p className="eyebrow">OUR STORY</p><h1>Baking warmth<br />into <em>every day.</em></h1></div><p>Welcome to the world of Épi d’Or, where every bite is a journey to warmth and delight.</p></section>
-    <section className="about-image"><img src={photos.patisserie} alt="Épi d’Or's patisserie inspiration" /></section>
-    <section className="philosophy section"><div><p className="eyebrow">OUR PHILOSOPHY</p><h2>Traditional baking.<br /><em>Contemporary flavours.</em></h2></div><div><p>Established with a passion for creating wholesome products, Épi d’Or is growing into a beloved bakery brand known for its rich, heart-filling offerings.</p><p>Here, the essence of traditional baking meets contemporary flavors, bringing joy and comfort to every customer.</p><strong>100% Vegetarian</strong></div></section>
+    <section className="editorial-hero section"><div><p className="eyebrow">OUR STORY</p><h1>Baking warmth<br />into <em>every day.</em></h1></div><p>Welcome to the world of Epi D’or, where every bite is a journey to warmth and delight.</p></section>
+    <section className="about-image"><img src={photos.patisserie} alt="Epi D’or's patisserie inspiration" /></section>
+    <section className="philosophy section"><div><p className="eyebrow">OUR PHILOSOPHY</p><h2>Traditional baking.<br /><em>Contemporary flavours.</em></h2></div><div><p>Established with a passion for creating wholesome products, Epi D’or is growing into a beloved bakery brand known for its rich, heart-filling offerings.</p><p>Here, the essence of traditional baking meets contemporary flavors, bringing joy and comfort to every customer.</p><strong>100% Vegetarian</strong></div></section>
   </main>;
 }
 
@@ -456,7 +456,7 @@ function Confirmation({ navigate, order }: { navigate: (p: string) => void; orde
 }
 
 function Footer({ navigate }: { navigate: (p: string) => void }) {
-  return <footer><div className="footer-main"><Logo onClick={() => navigate("home")} /><p>Wholesome bakes, contemporary flavours and heartfelt moments—made in Mumbai.</p><div><button onClick={() => navigate("menu")}>Menu</button><button onClick={() => navigate("custom-cakes")}>Custom Cakes</button><button onClick={() => navigate("about")}>Our Story</button><button onClick={() => navigate("contact")}>Contact</button></div><div><a href="tel:+918369301551">+91 8369301551</a><a href="https://instagram.com/epidor_patisserie">@epidor_patisserie</a><span>Mumbai</span></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Épi d’Or</span><span>100% Vegetarian</span></div></footer>;
+  return <footer><div className="footer-main"><Logo onClick={() => navigate("home")} /><p>Wholesome bakes, contemporary flavours and heartfelt moments—made in Mumbai.</p><div><button onClick={() => navigate("menu")}>Menu</button><button onClick={() => navigate("custom-cakes")}>Custom Cakes</button><button onClick={() => navigate("about")}>Our Story</button><button onClick={() => navigate("contact")}>Contact</button></div><div><a href="tel:+918369301551">+91 8369301551</a><a href="https://instagram.com/epidor_patisserie">@epidor_patisserie</a><span>Mumbai</span></div></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Epi D’or</span><span>100% Vegetarian</span></div></footer>;
 }
 
 export default function App() {
