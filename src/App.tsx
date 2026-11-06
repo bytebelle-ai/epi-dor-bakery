@@ -111,7 +111,7 @@ function Button({ children, kind = "primary", onClick, type = "button" }: { chil
 }
 
 function Logo({ onClick }: { onClick: () => void }) {
-  return <button className="logo" onClick={onClick}><span>Épi</span><i> d’Or</i><small>ARTISAN PATISSERIE</small></button>;
+  return <button className="logo" onClick={onClick}><img className="logo-gold" src="/epidor-full-gold.webp" alt="Epi D'or Boulangerie and Patisserie" /><img className="logo-green" src="/epidor-full-green.webp" alt="" aria-hidden="true" /></button>;
 }
 
 function Header({ page, navigate, count, openCart, loggedIn, logout }: { page: string; navigate: (p: string) => void; count: number; openCart: () => void; loggedIn: boolean; logout: () => void }) {

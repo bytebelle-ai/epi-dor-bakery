@@ -13,7 +13,7 @@ export function WelcomeEntry({ enterCustomer, enterAdmin }: { enterCustomer: () 
   return <main className="welcome-entry">
     <section className="welcome-visual">
       <img src="https://images.unsplash.com/photo-1686515266396-080c4939e6b4?auto=format&fit=crop&w=1600&q=88" alt="Épi d’Or artisan patisserie selection" />
-      <div className="welcome-wordmark"><strong>Épi d’Or</strong><span>ARTISAN PATISSERIE · MUMBAI</span></div>
+            <div className="welcome-wordmark"><img src="/epidor-full-gold.webp" alt="Epi D'or Boulangerie and Patisserie" style={{ height: "110px", width: "auto", display: "block" }} /></div>
       <p>Traditional baking.<br /><em>Contemporary flavours.</em></p>
     </section>
     <section className="welcome-choices">
@@ -42,7 +42,7 @@ export function WelcomeEntry({ enterCustomer, enterAdmin }: { enterCustomer: () 
 export function RoleSelection({ customer, admin }: { customer: () => void; admin: () => void }) {
   return <main className="role-selection">
     <header className="role-header">
-      <div className="welcome-wordmark"><strong>Épi d’Or</strong><span>ARTISAN PATISSERIE · MUMBAI</span></div>
+            <div className="welcome-wordmark"><img src="/epidor-full-green.webp" alt="Epi D'or Boulangerie and Patisserie" style={{ height: "110px", width: "auto", display: "block" }} /></div>
       <p>100% vegetarian</p>
     </header>
     <section className="role-content">

@@ -672,3 +672,12 @@ footer .logo, footer .logo i { color: var(--ivory); }
   .admin-filters { flex-direction: column; }
   .category-admin-grid { grid-template-columns: 1fr 1fr; }
 }
+
+
+.logo img { height: 88px; width: auto; display: block; }
+.logo .logo-gold { display: none; }
+.logo .logo-green { display: block; }
+.header.home-header:not(.compact) .logo-gold, footer .logo-gold { display: block; }
+.header.home-header:not(.compact) .logo-green, footer .logo-green { display: none; }
+.header.compact { height: 6.5rem; }
+@media (max-width: 700px) { .logo img { height: 64px; } .header.compact { height: 5rem; } }
