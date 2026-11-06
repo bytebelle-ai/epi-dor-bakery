@@ -687,3 +687,4 @@ footer .logo .logo-green { display: none; }
 
 .brand-script { font-family: "Pinyon Script", cursive; font-style: normal; font-weight: 400; letter-spacing: 0; font-size: 1.15em; }
 .brand-script { display: inline-block; padding-bottom: 0.25em; line-height: 1; }
+.cake-form-submit { position: static; margin-top: 2rem; }
